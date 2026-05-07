@@ -71,8 +71,13 @@ export default function AdminQuizDetailPage() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(5);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiTesting, setAiTesting] = useState(false);
   const [aiQuestions, setAiQuestions] = useState<GeneratedQuestion[]>([]);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiTestStatus, setAiTestStatus] = useState<"idle" | "testing" | "success" | "error">(
+    "idle"
+  );
+  const [aiTestMessage, setAiTestMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !admin) {
@@ -252,16 +257,53 @@ export default function AdminQuizDetailPage() {
       return;
     }
 
+    const trimmedTopic = topic.trim();
+    if (trimmedTopic.length < 3) {
+      setAiError("Topic must be at least 3 characters.");
+      return;
+    }
+
+    const safeCount = Math.min(10, Math.max(1, Number.isFinite(count) ? count : 1));
+    if (safeCount !== count) {
+      setCount(safeCount);
+    }
+
     setAiLoading(true);
     setAiError(null);
     try {
-      const data = await generateQuestions(quizId, topic, count);
+      const data = await generateQuestions(quizId, trimmedTopic, safeCount);
       setAiQuestions(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : "AI generation failed";
       setAiError(message);
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleTestAi = async () => {
+    if (!quizId) {
+      return;
+    }
+
+    const fallbackTopic = quiz?.title ?? "general knowledge";
+    const trimmedTopic = topic.trim() || fallbackTopic;
+
+    setAiTesting(true);
+    setAiTestStatus("testing");
+    setAiTestMessage(null);
+    setAiError(null);
+
+    try {
+      await generateQuestions(quizId, trimmedTopic, 1);
+      setAiTestStatus("success");
+      setAiTestMessage("AI connection OK.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "AI test failed";
+      setAiTestStatus("error");
+      setAiTestMessage(message);
+    } finally {
+      setAiTesting(false);
     }
   };
 
@@ -272,12 +314,15 @@ export default function AdminQuizDetailPage() {
 
     setActionId(aiQuestion.questionText);
     try {
+      const maxOrder = questions.length
+        ? Math.max(...questions.map((question) => question.order ?? 0))
+        : -1;
       await createQuestion(quizId, {
         questionText: aiQuestion.questionText,
         options: aiQuestion.options,
         correctIndex: aiQuestion.correctIndex,
         explanation: aiQuestion.explanation,
-        order: 0,
+        order: maxOrder + 1,
       });
       await loadQuiz();
     } catch (err) {
@@ -563,7 +608,7 @@ export default function AdminQuizDetailPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-[2fr_1fr_auto]">
+          <div className="grid gap-3 md:grid-cols-[2fr_1fr_auto_auto]">
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="ai-topic">
                 Topic
@@ -584,20 +629,42 @@ export default function AdminQuizDetailPage() {
                 min={1}
                 max={10}
                 value={count}
-                onChange={(event) => setCount(Number(event.target.value))}
+                onChange={(event) => {
+                  const next = Number(event.target.value || 1);
+                  const safe = Math.min(10, Math.max(1, Number.isFinite(next) ? next : 1));
+                  setCount(safe);
+                }}
               />
             </div>
             <div className="flex items-end">
               <Button
                 type="button"
                 variant="secondary"
-                disabled={aiLoading || !topic}
+                disabled={aiLoading || aiTesting || !topic.trim()}
                 onClick={handleGenerate}
               >
                 {aiLoading ? "Generating..." : "Generate"}
               </Button>
             </div>
+            <div className="flex items-end">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={aiLoading || aiTesting}
+                onClick={handleTestAi}
+              >
+                {aiTesting ? "Testing..." : "Test AI"}
+              </Button>
+            </div>
           </div>
+          {aiTestStatus !== "idle" && aiTestMessage ? (
+            <p
+              className={`text-sm ${aiTestStatus === "error" ? "text-destructive" : "text-muted-foreground"
+                }`}
+            >
+              {aiTestMessage}
+            </p>
+          ) : null}
           {aiError ? <p className="text-sm text-destructive">{aiError}</p> : null}
           {aiQuestions.length > 0 ? (
             <div className="space-y-3">
@@ -626,7 +693,13 @@ export default function AdminQuizDetailPage() {
                 </div>
               ))}
             </div>
-          ) : null}
+          ) : aiLoading ? (
+            <p className="text-sm text-muted-foreground">Generating questions...</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No AI questions yet. Generate a topic to see results.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
