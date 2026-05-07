@@ -11,6 +11,7 @@ import {
 import { dbConnect } from "@/lib/db";
 import { Admin } from "@/lib/models/admin";
 import { User } from "@/lib/models/users";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { seedAdmin } from "@/lib/seed-admin";
 
 const loginSchema = z.object({
@@ -25,6 +26,18 @@ export async function POST(req: Request) {
 
    if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+   }
+
+   const ip = getClientIp(req);
+   const limiter = checkRateLimit(`login:${ip}`, 10, 60 * 1000);
+   if (!limiter.ok) {
+      return NextResponse.json(
+         { error: "Too many requests. Please try again later." },
+         {
+            status: 429,
+            headers: { "Retry-After": limiter.retryAfter.toString() },
+         }
+      );
    }
 
    const { email, password, role } = parsed.data;
