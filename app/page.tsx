@@ -203,10 +203,15 @@ export default function HomePage() {
                            </li>
                         ))}
                      </ul>
-                     <Link href="/signup" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700">
-                        Create student account
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                     </Link>
+                     <div className="mt-6 flex flex-wrap items-center gap-4">
+                        <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700">
+                           Create student account
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </Link>
+                        <Link href="/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-violet-600">
+                           Already have an account? Log in
+                        </Link>
+                     </div>
                   </div>
                   {/* Admin */}
                   <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-slate-50 to-gray-50 p-8 dark:from-gray-900/50 dark:to-gray-800/30">
@@ -222,10 +227,15 @@ export default function HomePage() {
                            </li>
                         ))}
                      </ul>
-                     <Link href="/admin" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                        Go to admin panel
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                     </Link>
+                     <div className="mt-6 flex flex-wrap items-center gap-4">
+                        <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
+                           Go to admin panel
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </Link>
+                        <Link href="/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-slate-700 dark:hover:text-slate-300">
+                           Admin sign in
+                        </Link>
+                     </div>
                   </div>
                </div>
             </div>
