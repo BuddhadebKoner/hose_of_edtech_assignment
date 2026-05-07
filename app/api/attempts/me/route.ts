@@ -16,16 +16,20 @@ export async function GET() {
       .populate("quizId", "title");
 
    return NextResponse.json(
-      attempts.map((attempt) => ({
-         id: attempt._id.toString(),
-         quiz: {
-            id: attempt.quizId?._id?.toString?.() ?? attempt.quizId?.toString?.(),
-            title: attempt.quizId?.title ?? "Quiz",
-         },
-         score: attempt.score,
-         totalQuestions: attempt.totalQuestions,
-         percentage: attempt.percentage,
-         completedAt: attempt.completedAt,
-      }))
+      attempts.map((attempt) => {
+         const quiz = attempt.quizId as unknown as { _id?: string; title?: string };
+
+         return {
+            id: attempt._id.toString(),
+            quiz: {
+               id: quiz?._id?.toString?.() ?? attempt.quizId?.toString?.(),
+               title: quiz?.title ?? "Quiz",
+            },
+            score: attempt.score,
+            totalQuestions: attempt.totalQuestions,
+            percentage: attempt.percentage,
+            completedAt: attempt.completedAt,
+         };
+      })
    );
 }
