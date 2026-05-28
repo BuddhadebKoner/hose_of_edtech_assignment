@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
    createContext,
    useCallback,
@@ -10,7 +11,15 @@ import {
    type ReactNode,
 } from "react";
 
-import { getMe, loginAdmin, logout, type AuthUser } from "@/lib/api/auth";
+import { loginAdminAction, logoutAction, getCurrentUserAction } from "@/actions/auth";
+import { broadcastLogin, broadcastLogout, initAuthSync } from "@/lib/auth-sync";
+
+type AuthUser = {
+   id: string;
+   name?: string;
+   email: string;
+   role: string;
+};
 
 type AdminAuthContextValue = {
    admin: AuthUser | null;
@@ -25,12 +34,13 @@ const AdminAuthContext = createContext<AdminAuthContextValue | undefined>(undefi
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
    const [admin, setAdmin] = useState<AuthUser | null>(null);
    const [loading, setLoading] = useState(true);
+   const router = useRouter();
 
    const refresh = useCallback(async () => {
       try {
-         const me = await getMe();
-         if (me.role === "admin") {
-            setAdmin(me);
+         const user = await getCurrentUserAction();
+         if (user && user.role === "admin") {
+            setAdmin(user);
          } else {
             setAdmin(null);
          }
@@ -41,6 +51,24 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       }
    }, []);
 
+   // Handle logout from other tabs
+   const handleCrossTabLogout = useCallback(() => {
+      setAdmin(null);
+      router.push("/admin");
+   }, [router]);
+
+   // Handle login from other tabs
+   const handleCrossTabLogin = useCallback(() => {
+      refresh();
+   }, [refresh]);
+
+   // Initialize cross-tab sync
+   useEffect(() => {
+      const cleanup = initAuthSync(handleCrossTabLogout, handleCrossTabLogin);
+      return cleanup;
+   }, [handleCrossTabLogout, handleCrossTabLogin]);
+
+   // Initial auth check
    useEffect(() => {
       refresh();
    }, [refresh]);
@@ -48,9 +76,16 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
    const login = useCallback(async (email: string, password: string) => {
       setLoading(true);
       try {
-         const me = await loginAdmin({ email, password });
-         setAdmin(me);
-         return { ok: true };
+         const result = await loginAdminAction(email, password);
+
+         if (result.success) {
+            setAdmin(result.user);
+            broadcastLogin(); // Notify other tabs
+            return { ok: true };
+         } else {
+            setAdmin(null);
+            return { ok: false, error: result.error };
+         }
       } catch (error) {
          const message = error instanceof Error ? error.message : "Login failed";
          setAdmin(null);
@@ -61,9 +96,11 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
    }, []);
 
    const logoutUser = useCallback(async () => {
-      await logout();
+      await logoutAction();
       setAdmin(null);
-   }, []);
+      broadcastLogout(); // Notify other tabs
+      router.push("/admin");
+   }, [router]);
 
    const value = useMemo(
       () => ({ admin, loading, login, logout: logoutUser, refresh }),

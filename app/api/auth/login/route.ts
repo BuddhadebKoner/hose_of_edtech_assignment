@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import {
-   AUTH_COOKIE_MAX_AGE,
    AUTH_COOKIE_NAME,
+   getSecureCookieConfig,
    signAccessToken,
    type AuthRole,
 } from "@/lib/auth";
@@ -13,6 +13,7 @@ import { Admin } from "@/lib/models/admin";
 import { User } from "@/lib/models/users";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { seedAdmin } from "@/lib/seed-admin";
+import { createSession } from "@/lib/session";
 
 const loginSchema = z.object({
    email: z.string().email("Please enter a valid email address"),
@@ -123,10 +124,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
    }
 
+   // Create session (invalidates all previous sessions for this user)
+   const session = await createSession({
+      userId: account._id,
+      role: account.role,
+      ip,
+      userAgent: req.headers.get("user-agent") || undefined,
+   });
+
+   // Sign JWT with session ID
    const token = await signAccessToken({
       userId: account._id,
       email: account.email,
       role: account.role,
+      sessionId: session.sessionId,
    });
 
    const response = NextResponse.json(
@@ -142,11 +153,7 @@ export async function POST(req: Request) {
    response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: AUTH_COOKIE_MAX_AGE,
+      ...getSecureCookieConfig(),
    });
 
    return response;

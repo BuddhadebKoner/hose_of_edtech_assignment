@@ -2,8 +2,10 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { AUTH_COOKIE_NAME, getSecureCookieConfig, signAccessToken } from "@/lib/auth";
 import { dbConnect } from "@/lib/db";
 import { User } from "@/lib/models/users";
+import { createSession } from "@/lib/session";
 
 const registerSchema = z.object({
    name: z.string()
@@ -53,8 +55,32 @@ export async function POST(req: Request) {
       role: "student",
    });
 
-   return NextResponse.json(
+   // Create session for the new user
+   const session = await createSession({
+      userId: user._id.toString(),
+      role: "student",
+      ip: req.headers.get("x-forwarded-for")?.split(",")[0] || undefined,
+      userAgent: req.headers.get("user-agent") || undefined,
+   });
+
+   // Sign JWT with session ID
+   const token = await signAccessToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: "student",
+      sessionId: session.sessionId,
+   });
+
+   const response = NextResponse.json(
       { id: user._id, name: user.name, email: user.email, role: user.role },
       { status: 201 }
    );
+
+   response.cookies.set({
+      name: AUTH_COOKIE_NAME,
+      value: token,
+      ...getSecureCookieConfig(),
+   });
+
+   return response;
 }
