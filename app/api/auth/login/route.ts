@@ -15,8 +15,8 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { seedAdmin } from "@/lib/seed-admin";
 
 const loginSchema = z.object({
-   email: z.string().email(),
-   password: z.string().min(1),
+   email: z.string().email("Please enter a valid email address"),
+   password: z.string().min(1, "Password is required"),
    role: z.enum(["admin", "student"]).optional(),
 });
 
@@ -25,14 +25,15 @@ export async function POST(req: Request) {
    const parsed = loginSchema.safeParse(body);
 
    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+      const firstError = parsed.error.issues[0];
+      return NextResponse.json({ error: firstError.message }, { status: 400 });
    }
 
    const ip = getClientIp(req);
    const limiter = checkRateLimit(`login:${ip}`, 10, 60 * 1000);
    if (!limiter.ok) {
       return NextResponse.json(
-         { error: "Too many requests. Please try again later." },
+         { error: "Too many login attempts. Please try again later." },
          {
             status: 429,
             headers: { "Retry-After": limiter.retryAfter.toString() },
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
          };
          const valid = await bcrypt.compare(password, admin.password);
          if (!valid) {
-            return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+            return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
          }
       }
    } else if (role === "student") {
@@ -119,7 +120,7 @@ export async function POST(req: Request) {
    }
 
    if (!account) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
    }
 
    const token = await signAccessToken({

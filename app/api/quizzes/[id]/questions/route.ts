@@ -30,6 +30,18 @@ function serializeQuestion(question: typeof Question.prototype, includeAnswers: 
    };
 }
 
+/**
+ * Fisher-Yates shuffle algorithm for randomizing array
+ */
+function shuffleArray<T>(array: T[]): T[] {
+   const shuffled = [...array];
+   for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+   }
+   return shuffled;
+}
+
 export async function GET(
    req: Request,
    { params }: { params: Promise<{ id: string }> }
@@ -54,7 +66,17 @@ export async function GET(
    const questions = await Question.find({ quizId: id }).sort({ order: 1, createdAt: 1 });
    const includeAnswers = session.role === "admin";
 
-   return NextResponse.json(questions.map((question) => serializeQuestion(question, includeAnswers)));
+   // For students: shuffle and limit questions
+   let finalQuestions = questions;
+   if (session.role === "student") {
+      const shuffled = shuffleArray(questions);
+      const questionLimit = quiz.questionLimit ?? 10;
+      // Ensure we don't exceed available questions
+      const limit = Math.min(questionLimit, shuffled.length);
+      finalQuestions = shuffled.slice(0, limit);
+   }
+
+   return NextResponse.json(finalQuestions.map((question) => serializeQuestion(question, includeAnswers)));
 }
 
 export async function POST(

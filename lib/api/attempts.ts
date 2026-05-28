@@ -77,7 +77,7 @@ export async function getQuizAttempts(quizId: string) {
    return requestJson<QuizAttempt[]>(`/api/attempts?quizId=${quizId}`);
 }
 
-export async function submitAttempt(quizId: string, answers: number[]) {
+export async function submitAttempt(quizId: string, answers: number[], questionIds: string[]) {
    return requestJson<{
       id: string;
       score: number;
@@ -86,7 +86,7 @@ export async function submitAttempt(quizId: string, answers: number[]) {
       completedAt: string;
    }>("/api/attempts", {
       method: "POST",
-      body: { quizId, answers },
+      body: { quizId, answers, questionIds },
    });
 }
 

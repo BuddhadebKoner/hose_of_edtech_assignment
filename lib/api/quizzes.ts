@@ -5,6 +5,7 @@ export type Quiz = {
    createdBy: string;
    isPublished: boolean;
    timeLimit?: number;
+   questionLimit: number;
    tags?: string[];
    createdAt?: string;
    updatedAt?: string;
@@ -62,6 +63,7 @@ export async function createQuiz(input: {
    title: string;
    description?: string;
    timeLimit?: number;
+   questionLimit?: number;
    tags?: string[];
 }) {
    return requestJson<Quiz>("/api/quizzes", { method: "POST", body: input });
@@ -73,6 +75,7 @@ export async function updateQuiz(
       title: string;
       description: string;
       timeLimit: number;
+      questionLimit: number;
       tags: string[];
       isPublished: boolean;
    }>

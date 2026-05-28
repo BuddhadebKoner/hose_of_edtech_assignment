@@ -7,6 +7,7 @@ export interface IQuiz extends Document {
    isPublished: boolean;
    timeLimit?: number;
    tags?: string[];
+   questionLimit: number;
 }
 
 const QuizSchema = new Schema<IQuiz>(
@@ -17,6 +18,16 @@ const QuizSchema = new Schema<IQuiz>(
       isPublished: { type: Boolean, default: false },
       timeLimit: { type: Number, default: 0 },
       tags: [{ type: String }],
+      questionLimit: {
+         type: Number,
+         default: 10,
+         min: 1,
+         max: 30,
+         validate: {
+            validator: Number.isInteger,
+            message: "Question limit must be an integer"
+         }
+      },
    },
    { timestamps: true }
 );

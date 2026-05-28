@@ -105,10 +105,12 @@ export default function QuizAttemptPage() {
       }
 
       const finalAnswers = answers.map((a) => (a === null ? -1 : a));
+      const questionIds = questions.map((q) => q.id);
 
       try {
-         const result = await submitAttempt(quizId, finalAnswers);
-         router.push(`/quiz/${quizId}/result/${result.id}`);
+         const result = await submitAttempt(quizId, finalAnswers, questionIds);
+         // Pass result data via router state to avoid additional API call
+         router.push(`/quiz/${quizId}/result/${result.id}?score=${result.score}&total=${result.totalQuestions}&percentage=${result.percentage}&completed=${result.completedAt}`);
       } catch (err) {
          hasSubmittedRef.current = false;
          const message = err instanceof Error ? err.message : "Failed to submit";
@@ -188,13 +190,12 @@ export default function QuizAttemptPage() {
             <div className="flex items-center gap-4">
                {timeLeft !== null && (
                   <div
-                     className={`rounded-lg border px-4 py-2 text-center font-mono text-lg font-bold ${
-                        timeLeft <= 60
-                           ? "border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-                           : timeLeft <= 300
+                     className={`rounded-lg border px-4 py-2 text-center font-mono text-lg font-bold ${timeLeft <= 60
+                        ? "border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
+                        : timeLeft <= 300
                            ? "border-yellow-300 bg-yellow-50 text-yellow-600 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-400"
                            : "border-border"
-                     }`}
+                        }`}
                   >
                      ⏱ {formatTime(timeLeft)}
                   </div>
@@ -225,18 +226,16 @@ export default function QuizAttemptPage() {
                               key={`option-${index}`}
                               type="button"
                               onClick={() => selectAnswer(index)}
-                              className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left text-sm transition-all ${
-                                 isSelected
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
-                              }`}
+                              className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left text-sm transition-all ${isSelected
+                                 ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                 : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                 }`}
                            >
                               <span
-                                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                                    isSelected
-                                       ? "border-primary bg-primary text-primary-foreground"
-                                       : "border-muted-foreground/30"
-                                 }`}
+                                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${isSelected
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-muted-foreground/30"
+                                    }`}
                               >
                                  {String.fromCharCode(65 + index)}
                               </span>
@@ -291,13 +290,12 @@ export default function QuizAttemptPage() {
                                  key={`nav-${index}`}
                                  type="button"
                                  onClick={() => setCurrentIndex(index)}
-                                 className={`flex h-9 w-9 items-center justify-center rounded-md text-xs font-medium transition-all ${
-                                    isCurrent
-                                       ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2"
-                                       : isAnswered
+                                 className={`flex h-9 w-9 items-center justify-center rounded-md text-xs font-medium transition-all ${isCurrent
+                                    ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2"
+                                    : isAnswered
                                        ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
                                        : "border border-border bg-background hover:bg-muted"
-                                 }`}
+                                    }`}
                               >
                                  {index + 1}
                               </button>

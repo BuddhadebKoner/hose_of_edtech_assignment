@@ -14,6 +14,11 @@ const quizUpdateSchema = z
       timeLimit: z.number().min(0).optional(),
       tags: z.array(z.string()).optional(),
       isPublished: z.boolean().optional(),
+      questionLimit: z.number()
+         .int("Question limit must be a whole number")
+         .min(1, "Question limit must be at least 1")
+         .max(30, "Question limit cannot exceed 30")
+         .optional(),
    })
    .refine((data) => Object.keys(data).length > 0, {
       message: "No fields to update",
@@ -28,6 +33,7 @@ function serializeQuiz(quiz: typeof Quiz.prototype) {
       isPublished: quiz.isPublished,
       timeLimit: quiz.timeLimit ?? 0,
       tags: quiz.tags ?? [],
+      questionLimit: quiz.questionLimit ?? 10,
       createdAt: quiz.createdAt ?? null,
       updatedAt: quiz.updatedAt ?? null,
    };

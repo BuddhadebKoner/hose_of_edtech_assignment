@@ -19,6 +19,11 @@ import { useStudentAuth } from "@/context/student-auth-context";
 
 type LoginTab = "student" | "admin";
 
+interface ValidationErrors {
+   email?: string;
+   password?: string;
+}
+
 export default function LoginPage() {
    const router = useRouter();
    const { login: loginStudent, loading: studentLoading } = useStudentAuth();
@@ -29,30 +34,113 @@ export default function LoginPage() {
    const [studentEmail, setStudentEmail] = useState("");
    const [studentPassword, setStudentPassword] = useState("");
    const [studentError, setStudentError] = useState<string | null>(null);
+   const [studentValidationErrors, setStudentValidationErrors] = useState<ValidationErrors>({});
 
    const [adminEmail, setAdminEmail] = useState("");
    const [adminPassword, setAdminPassword] = useState("");
    const [adminError, setAdminError] = useState<string | null>(null);
+   const [adminValidationErrors, setAdminValidationErrors] = useState<ValidationErrors>({});
+
+   const validateEmail = (email: string): string | undefined => {
+      if (!email) {
+         return "Email is required";
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+         return "Please enter a valid email address";
+      }
+      return undefined;
+   };
+
+   const validatePassword = (password: string): string | undefined => {
+      if (!password) {
+         return "Password is required";
+      }
+      if (password.length < 6) {
+         return "Password must be at least 6 characters";
+      }
+      return undefined;
+   };
+
+   const handleStudentEmailChange = (email: string) => {
+      setStudentEmail(email);
+      if (studentValidationErrors.email) {
+         setStudentValidationErrors(prev => ({ ...prev, email: undefined }));
+      }
+      setStudentError(null);
+   };
+
+   const handleStudentPasswordChange = (password: string) => {
+      setStudentPassword(password);
+      if (studentValidationErrors.password) {
+         setStudentValidationErrors(prev => ({ ...prev, password: undefined }));
+      }
+      setStudentError(null);
+   };
+
+   const handleAdminEmailChange = (email: string) => {
+      setAdminEmail(email);
+      if (adminValidationErrors.email) {
+         setAdminValidationErrors(prev => ({ ...prev, email: undefined }));
+      }
+      setAdminError(null);
+   };
+
+   const handleAdminPasswordChange = (password: string) => {
+      setAdminPassword(password);
+      if (adminValidationErrors.password) {
+         setAdminValidationErrors(prev => ({ ...prev, password: undefined }));
+      }
+      setAdminError(null);
+   };
 
    const handleStudentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setStudentError(null);
+
+      const errors: ValidationErrors = {};
+      const emailError = validateEmail(studentEmail);
+      const passwordError = validatePassword(studentPassword);
+
+      if (emailError) errors.email = emailError;
+      if (passwordError) errors.password = passwordError;
+
+      if (Object.keys(errors).length > 0) {
+         setStudentValidationErrors(errors);
+         return;
+      }
+
+      setStudentValidationErrors({});
       const result = await loginStudent(studentEmail, studentPassword);
       if (result.ok) {
          router.push("/dashboard");
       } else {
-         setStudentError(result.error ?? "Login failed");
+         setStudentError(result.error ?? "Login failed. Please check your credentials.");
       }
    };
 
    const handleAdminSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setAdminError(null);
+
+      const errors: ValidationErrors = {};
+      const emailError = validateEmail(adminEmail);
+      const passwordError = validatePassword(adminPassword);
+
+      if (emailError) errors.email = emailError;
+      if (passwordError) errors.password = passwordError;
+
+      if (Object.keys(errors).length > 0) {
+         setAdminValidationErrors(errors);
+         return;
+      }
+
+      setAdminValidationErrors({});
       const result = await loginAdmin(adminEmail, adminPassword);
       if (result.ok) {
          router.push("/admin");
       } else {
-         setAdminError(result.error ?? "Login failed");
+         setAdminError(result.error ?? "Login failed. Please check your credentials.");
       }
    };
 
@@ -98,29 +186,27 @@ export default function LoginPage() {
                <div className="flex border-b border-border">
                   <button
                      onClick={() => setActiveTab("student")}
-                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${
-                        activeTab === "student"
-                           ? "border-b-2 border-violet-600 text-violet-600"
-                           : "text-muted-foreground hover:text-foreground"
-                     }`}
+                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${activeTab === "student"
+                        ? "border-b-2 border-violet-600 text-violet-600"
+                        : "text-muted-foreground hover:text-foreground"
+                        }`}
                      id="login-tab-student"
                   >
                      <span className="flex items-center justify-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                         Student
                      </span>
                   </button>
                   <button
                      onClick={() => setActiveTab("admin")}
-                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${
-                        activeTab === "admin"
-                           ? "border-b-2 border-violet-600 text-violet-600"
-                           : "text-muted-foreground hover:text-foreground"
-                     }`}
+                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${activeTab === "admin"
+                        ? "border-b-2 border-violet-600 text-violet-600"
+                        : "text-muted-foreground hover:text-foreground"
+                        }`}
                      id="login-tab-admin"
                   >
                      <span className="flex items-center justify-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
                         Admin
                      </span>
                   </button>
@@ -137,13 +223,35 @@ export default function LoginPage() {
                         <form className="space-y-4" onSubmit={handleStudentSubmit}>
                            <div className="space-y-2">
                               <label className="text-sm font-medium" htmlFor="student-email">Email</label>
-                              <Input id="student-email" type="email" autoComplete="email" placeholder="you@example.com" value={studentEmail} onChange={(e) => setStudentEmail(e.target.value)} required />
+                              <Input
+                                 id="student-email"
+                                 type="email"
+                                 autoComplete="email"
+                                 placeholder="you@example.com"
+                                 value={studentEmail}
+                                 onChange={(e) => handleStudentEmailChange(e.target.value)}
+                                 className={studentValidationErrors.email ? "border-destructive" : ""}
+                              />
+                              {studentValidationErrors.email && (
+                                 <p className="text-xs text-destructive">{studentValidationErrors.email}</p>
+                              )}
                            </div>
                            <div className="space-y-2">
                               <label className="text-sm font-medium" htmlFor="student-password">Password</label>
-                              <Input id="student-password" type="password" autoComplete="current-password" placeholder="••••••••" value={studentPassword} onChange={(e) => setStudentPassword(e.target.value)} required />
+                              <Input
+                                 id="student-password"
+                                 type="password"
+                                 autoComplete="current-password"
+                                 placeholder="••••••••"
+                                 value={studentPassword}
+                                 onChange={(e) => handleStudentPasswordChange(e.target.value)}
+                                 className={studentValidationErrors.password ? "border-destructive" : ""}
+                              />
+                              {studentValidationErrors.password && (
+                                 <p className="text-xs text-destructive">{studentValidationErrors.password}</p>
+                              )}
                            </div>
-                           {studentError ? (<p className="text-sm text-destructive">{studentError}</p>) : null}
+                           {studentError ? (<p className="text-sm text-destructive font-medium">{studentError}</p>) : null}
                            <Button type="submit" disabled={studentLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110">
                               {studentLoading ? "Signing in..." : "Sign in as Student"}
                            </Button>
@@ -173,13 +281,35 @@ export default function LoginPage() {
                         <form className="space-y-4" onSubmit={handleAdminSubmit}>
                            <div className="space-y-2">
                               <label className="text-sm font-medium" htmlFor="admin-email">Admin Email</label>
-                              <Input id="admin-email" type="email" autoComplete="email" placeholder="admin@example.com" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} required />
+                              <Input
+                                 id="admin-email"
+                                 type="email"
+                                 autoComplete="email"
+                                 placeholder="admin@example.com"
+                                 value={adminEmail}
+                                 onChange={(e) => handleAdminEmailChange(e.target.value)}
+                                 className={adminValidationErrors.email ? "border-destructive" : ""}
+                              />
+                              {adminValidationErrors.email && (
+                                 <p className="text-xs text-destructive">{adminValidationErrors.email}</p>
+                              )}
                            </div>
                            <div className="space-y-2">
                               <label className="text-sm font-medium" htmlFor="admin-password">Password</label>
-                              <Input id="admin-password" type="password" autoComplete="current-password" placeholder="••••••••" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} required />
+                              <Input
+                                 id="admin-password"
+                                 type="password"
+                                 autoComplete="current-password"
+                                 placeholder="••••••••"
+                                 value={adminPassword}
+                                 onChange={(e) => handleAdminPasswordChange(e.target.value)}
+                                 className={adminValidationErrors.password ? "border-destructive" : ""}
+                              />
+                              {adminValidationErrors.password && (
+                                 <p className="text-xs text-destructive">{adminValidationErrors.password}</p>
+                              )}
                            </div>
-                           {adminError ? <p className="text-sm text-destructive">{adminError}</p> : null}
+                           {adminError ? <p className="text-sm text-destructive font-medium">{adminError}</p> : null}
                            <Button type="submit" disabled={adminLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110">
                               {adminLoading ? "Signing in..." : "Sign in as Admin"}
                            </Button>

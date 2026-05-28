@@ -62,6 +62,7 @@ export default function AdminQuizDetailPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [timeLimit, setTimeLimit] = useState("");
+  const [questionLimit, setQuestionLimit] = useState("10");
   const [tagsInput, setTagsInput] = useState("");
 
   const [questionForm, setQuestionForm] = useState({ ...EMPTY_QUESTION });
@@ -95,6 +96,7 @@ export default function AdminQuizDetailPage() {
       setTitle(quizData.title);
       setDescription(quizData.description ?? "");
       setTimeLimit(quizData.timeLimit ? String(quizData.timeLimit) : "");
+      setQuestionLimit(quizData.questionLimit ? String(quizData.questionLimit) : "10");
       setTagsInput(quizData.tags?.join(", ") ?? "");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load quiz");
@@ -117,6 +119,7 @@ export default function AdminQuizDetailPage() {
         title,
         description: description || "",
         timeLimit: timeLimit ? Number(timeLimit) : 0,
+        questionLimit: Number(questionLimit),
         tags: tags.length ? tags : [],
       });
       setQuiz(updated);
@@ -342,7 +345,7 @@ export default function AdminQuizDetailPage() {
           <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-md">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" /><circle cx="12" cy="15" r="2" /></svg>
               </div>
               <div>
                 <h2 className="text-lg font-bold text-foreground">AI Question Generator</h2>
@@ -389,7 +392,7 @@ export default function AdminQuizDetailPage() {
               {/* Bulk add banner */}
               <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/30">
                 <div className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600 dark:text-emerald-400"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600 dark:text-emerald-400"><polyline points="20 6 9 17 4 12" /></svg>
                   <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">{aiQuestions.length} question{aiQuestions.length > 1 ? "s" : ""} generated</span>
                 </div>
                 <Button size="sm" disabled={bulkAdding} onClick={handleAddAllAiQuestions} className="bg-emerald-600 text-white hover:bg-emerald-700">
@@ -442,6 +445,11 @@ export default function AdminQuizDetailPage() {
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="quiz-time">Time limit (minutes)</label>
             <Input id="quiz-time" type="number" min={0} value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="quiz-question-limit">Question limit</label>
+            <Input id="quiz-question-limit" type="number" min={1} max={30} value={questionLimit} onChange={(e) => setQuestionLimit(e.target.value)} />
+            <p className="text-xs text-muted-foreground">Number of questions to show per attempt (1-30). Questions will be randomized.</p>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium" htmlFor="quiz-tags">Tags</label>

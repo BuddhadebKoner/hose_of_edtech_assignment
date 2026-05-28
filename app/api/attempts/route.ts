@@ -10,6 +10,7 @@ import { Quiz } from "@/lib/models/quizzes";
 const attemptSchema = z.object({
    quizId: z.string(),
    answers: z.array(z.number()),
+   questionIds: z.array(z.string()),
 });
 
 export async function GET(req: Request) {
@@ -84,31 +85,48 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
    }
 
-   const questions = await Question.find({ quizId: parsed.data.quizId }).sort({
-      order: 1,
-      createdAt: 1,
+   // Validate that questionIds and answers have the same length
+   if (parsed.data.answers.length !== parsed.data.questionIds.length) {
+      return NextResponse.json({ error: "Answer count must match question count" }, { status: 400 });
+   }
+
+   // Fetch the specific questions that were presented to the student
+   const questions = await Question.find({
+      _id: { $in: parsed.data.questionIds },
+      quizId: parsed.data.quizId
    });
 
    if (questions.length === 0) {
       return NextResponse.json({ error: "Quiz has no questions" }, { status: 400 });
    }
 
-   if (parsed.data.answers.length !== questions.length) {
-      return NextResponse.json({ error: "Answer count mismatch" }, { status: 400 });
+   if (questions.length !== parsed.data.questionIds.length) {
+      return NextResponse.json({ error: "Invalid question IDs" }, { status: 400 });
    }
 
-   const score = questions.reduce((total, question, index) => {
-      return parsed.data.answers[index] === question.correctIndex ? total + 1 : total;
-   }, 0);
+   // Create a map of question ID to question for efficient lookup
+   const questionMap = new Map(questions.map(q => [q._id.toString(), q]));
 
-   const percentage = Math.round((score / questions.length) * 100);
+   // Calculate score based on the order of questionIds submitted
+   let score = 0;
+   for (let i = 0; i < parsed.data.questionIds.length; i++) {
+      const questionId = parsed.data.questionIds[i];
+      const question = questionMap.get(questionId);
+
+      if (question && parsed.data.answers[i] === question.correctIndex) {
+         score++;
+      }
+   }
+
+   const totalQuestions = parsed.data.questionIds.length;
+   const percentage = Math.round((score / totalQuestions) * 100);
 
    const attempt = await Attempt.create({
       quizId: parsed.data.quizId,
       userId: session.id,
       answers: parsed.data.answers,
       score,
-      totalQuestions: questions.length,
+      totalQuestions,
       percentage,
       completedAt: new Date(),
    });
