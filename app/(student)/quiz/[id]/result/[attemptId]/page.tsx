@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useStudentAuth } from "@/context/student-auth-context";
-import { getQuiz, type Quiz } from "@/lib/api/quizzes";
+import { getAttemptSummary, type AttemptSummary } from "@/lib/api/attempts";
 
 function gradeLabel(percentage: number) {
    if (percentage >= 90) return { label: "Excellent!", color: "text-green-600 dark:text-green-400" };
@@ -20,19 +20,13 @@ function gradeLabel(percentage: number) {
 export default function QuizResultPage() {
    const router = useRouter();
    const params = useParams();
-   const searchParams = useSearchParams();
    const quizId = Array.isArray(params.id) ? params.id[0] : (params.id as string);
+   const attemptId = Array.isArray(params.attemptId) ? params.attemptId[0] : (params.attemptId as string);
    const { student, loading } = useStudentAuth();
 
-   const [quiz, setQuiz] = useState<Quiz | null>(null);
+   const [attempt, setAttempt] = useState<AttemptSummary | null>(null);
    const [loadingData, setLoadingData] = useState(true);
    const [error, setError] = useState<string | null>(null);
-
-   // Get result data from URL parameters
-   const score = parseInt(searchParams.get("score") || "0");
-   const totalQuestions = parseInt(searchParams.get("total") || "0");
-   const percentage = parseInt(searchParams.get("percentage") || "0");
-   const completedAt = searchParams.get("completed") || new Date().toISOString();
 
    useEffect(() => {
       if (!loading && !student) {
@@ -41,15 +35,15 @@ export default function QuizResultPage() {
    }, [loading, student, router]);
 
    useEffect(() => {
-      const loadQuiz = async () => {
-         if (!quizId || !student) return;
+      const loadAttempt = async () => {
+         if (!attemptId || !student) return;
          setLoadingData(true);
          setError(null);
          try {
-            const quizData = await getQuiz(quizId);
-            setQuiz(quizData);
+            const attemptData = await getAttemptSummary(attemptId);
+            setAttempt(attemptData);
          } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to load quiz";
+            const message = err instanceof Error ? err.message : "Failed to load attempt";
             setError(message);
          } finally {
             setLoadingData(false);
@@ -57,9 +51,9 @@ export default function QuizResultPage() {
       };
 
       if (student) {
-         loadQuiz();
+         loadAttempt();
       }
-   }, [student, quizId]);
+   }, [student, attemptId]);
 
    if (loading || loadingData) {
       return (
@@ -83,11 +77,11 @@ export default function QuizResultPage() {
       );
    }
 
-   if (!quiz) return null;
+   if (!attempt) return null;
 
-   const grade = gradeLabel(percentage);
-   const correctCount = score;
-   const wrongCount = totalQuestions - score;
+   const grade = gradeLabel(attempt.percentage);
+   const correctCount = attempt.score;
+   const wrongCount = attempt.totalQuestions - attempt.score;
 
    return (
       <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-10">
@@ -95,7 +89,7 @@ export default function QuizResultPage() {
          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
                <h1 className="text-2xl font-semibold">Quiz Result</h1>
-               <p className="text-sm text-muted-foreground">{quiz.title}</p>
+               <p className="text-sm text-muted-foreground">{attempt.quiz.title}</p>
             </div>
             <div className="flex flex-wrap gap-2">
                <Button variant="outline" onClick={() => router.push("/dashboard")}>
@@ -120,9 +114,9 @@ export default function QuizResultPage() {
                   <p className={`text-xl font-semibold ${grade.color}`}>
                      {grade.label}
                   </p>
-                  <p className="mt-2 text-5xl font-bold">{percentage}%</p>
+                  <p className="mt-2 text-5xl font-bold">{attempt.percentage}%</p>
                   <p className="mt-2 text-lg text-muted-foreground">
-                     {score} out of {totalQuestions} correct
+                     {attempt.score} out of {attempt.totalQuestions} correct
                   </p>
                   <div className="mx-auto mt-4 flex max-w-xs justify-center gap-6 text-sm">
                      <div className="text-center">
@@ -141,18 +135,18 @@ export default function QuizResultPage() {
                   {/* Score bar */}
                   <div className="mx-auto mt-4 h-3 max-w-sm overflow-hidden rounded-full bg-muted">
                      <div
-                        className={`h-full rounded-full transition-all ${percentage >= 70
-                              ? "bg-green-500"
-                              : percentage >= 40
-                                 ? "bg-yellow-500"
-                                 : "bg-red-500"
+                        className={`h-full rounded-full transition-all ${attempt.percentage >= 70
+                           ? "bg-green-500"
+                           : attempt.percentage >= 40
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
                            }`}
-                        style={{ width: `${percentage}%` }}
+                        style={{ width: `${attempt.percentage}%` }}
                      />
                   </div>
                   <p className="mt-3 text-xs text-muted-foreground">
                      Completed on{" "}
-                     {new Date(completedAt).toLocaleString()}
+                     {new Date(attempt.completedAt).toLocaleString()}
                   </p>
                </div>
             </CardContent>

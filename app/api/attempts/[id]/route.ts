@@ -28,6 +28,24 @@ export async function GET(
    }
 
    const quiz = await Quiz.findById(attempt.quizId).select("title");
+
+   // For students: Only return score summary, NO questions or answers
+   if (session.role === "student") {
+      return NextResponse.json({
+         id: attempt._id.toString(),
+         quiz: {
+            id: attempt.quizId.toString(),
+            title: quiz?.title ?? "Quiz",
+         },
+         userId: attempt.userId.toString(),
+         score: attempt.score,
+         totalQuestions: attempt.totalQuestions,
+         percentage: attempt.percentage,
+         completedAt: attempt.completedAt,
+      });
+   }
+
+   // For admins: Include full details with questions and answers for review
    const questions = await Question.find({ quizId: attempt.quizId }).sort({
       order: 1,
       createdAt: 1,

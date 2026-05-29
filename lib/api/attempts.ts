@@ -36,6 +36,21 @@ export type AttemptQuestion = {
    userAnswer: number | null;
 };
 
+// Student view: Only score summary, no questions/answers
+export type AttemptSummary = {
+   id: string;
+   quiz: {
+      id: string;
+      title: string;
+   };
+   userId: string;
+   score: number;
+   totalQuestions: number;
+   percentage: number;
+   completedAt: string;
+};
+
+// Admin view: Full details with questions and answers
 export type AttemptDetail = {
    id: string;
    quiz: {
@@ -94,6 +109,12 @@ export async function getMyAttempts() {
    return requestJson<MyAttempt[]>("/api/attempts/me");
 }
 
+// For students: Returns only score summary (no questions/answers)
+export async function getAttemptSummary(attemptId: string) {
+   return requestJson<AttemptSummary>(`/api/attempts/${attemptId}`);
+}
+
+// For admins: Returns full details with questions and answers
 export async function getAttemptDetail(attemptId: string) {
    return requestJson<AttemptDetail>(`/api/attempts/${attemptId}`);
 }
