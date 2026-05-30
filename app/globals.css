@@ -2,43 +2,87 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
+  /* Color — Canvas & Text */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-faint: var(--foreground-faint);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+
+  /* Color — Purple accent system */
+  --color-purple-100: var(--purple-100);
+  --color-purple-200: var(--purple-200);
+  --color-purple-300: var(--purple-300);
+  --color-purple-400: var(--purple-400);
+  --color-purple-500: var(--purple-500);
+  --color-purple-600: var(--purple-600);
+  --color-purple-700: var(--purple-700);
+
+  /* Color — Semantic (mapped to purple) */
   --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+
+  /* Color — UI Chrome */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Color — Feedback */
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-destructive: var(--destructive);
+  --color-destructive-surface: var(--destructive-surface);
+
+  /* Color — Score */
+  --color-score-excellent: var(--score-excellent);
+  --color-score-great: var(--score-great);
+  --color-score-good: var(--score-good);
+  --color-score-weak: var(--score-weak);
+  --color-score-fail: var(--score-fail);
+
+  /* Color — Backward-compat shadcn tokens */
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Color — Chart (kept for admin) */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Color — Sidebar (kept for admin) */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Fonts */
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+
+  /* Radius — Standard scale (backward compat) */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,75 +90,113 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Radius — Design system scale */
+  --radius-tag: var(--radius-tag);
+  --radius-button: var(--radius-button);
+  --radius-input: var(--radius-input);
+  --radius-card: var(--radius-card);
+  --radius-section: var(--radius-section);
+  --radius-avatar: var(--radius-avatar);
+
+  /* Shadows */
+  --shadow-card: var(--shadow-card);
+  --shadow-raised: var(--shadow-raised);
+  --shadow-button: var(--shadow-button);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Canvas */
+  --background:       oklch(0.97 0.004 285);
+  --surface:          oklch(1 0 0 / 0.82);
+  --surface-raised:   oklch(1 0 0 / 0.94);
+  --foreground:       oklch(0.11 0.008 285);
+  --foreground-muted: oklch(0.46 0.012 285);
+  --foreground-faint: oklch(0.72 0.006 285);
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  /* Purple accent system */
+  --purple-100: oklch(0.94 0.030 292);
+  --purple-200: oklch(0.88 0.055 292);
+  --purple-300: oklch(0.78 0.090 292);
+  --purple-400: oklch(0.66 0.130 292);
+  --purple-500: oklch(0.54 0.175 292);
+  --purple-600: oklch(0.44 0.185 292);
+  --purple-700: oklch(0.34 0.170 292);
+
+  /* Semantic colors mapped to purple */
+  --primary:            var(--purple-500);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover:      var(--purple-600);
+
+  /* Backward-compat shadcn tokens → new values */
+  --card:                var(--surface);
+  --card-foreground:     var(--foreground);
+  --popover:             var(--surface-raised);
+  --popover-foreground:  var(--foreground);
+  --secondary:           var(--purple-100);
+  --secondary-foreground: var(--purple-600);
+  --muted:               var(--purple-100);
+  --muted-foreground:    var(--foreground-muted);
+  --accent:              var(--purple-100);
+  --accent-foreground:   var(--foreground);
+
+  /* UI Chrome */
+  --border:        oklch(0.88 0.012 285);
+  --border-strong: oklch(0.78 0.025 285);
+  --border-accent: var(--purple-300);
+  --input:         oklch(1 0 0 / 0.88);
+  --ring:          var(--purple-400);
+
+  /* Feedback */
+  --success:            oklch(0.58 0.145 152);
+  --success-surface:    oklch(0.94 0.035 152);
+  --warning:            oklch(0.72 0.155 72);
+  --warning-surface:    oklch(0.96 0.035 72);
+  --destructive:        oklch(0.58 0.220 27);
+  --destructive-surface: oklch(0.96 0.030 27);
+
+  /* Score colors */
+  --score-excellent: oklch(0.58 0.145 152);
+  --score-great:     oklch(0.62 0.140 160);
+  --score-good:      oklch(0.72 0.155 72);
+  --score-weak:      oklch(0.68 0.185 45);
+  --score-fail:      oklch(0.58 0.220 27);
+
+  /* Chart (kept for admin) */
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+
+  /* Radius scale */
+  --radius:         0.625rem;
+  --radius-tag:     99px;
+  --radius-button:  14px;
+  --radius-input:   12px;
+  --radius-card:    20px;
+  --radius-section: 28px;
+  --radius-avatar:  12px;
+
+  /* Shadows */
+  --shadow-card:   0 1px 3px oklch(0.11 0 0 / 0.05), 0 6px 20px oklch(0.11 0 0 / 0.07);
+  --shadow-raised: 0 2px 6px oklch(0.11 0 0 / 0.06), 0 14px 40px oklch(0.11 0 0 / 0.10);
+  --shadow-button: 0 1px 2px oklch(0.11 0 0 / 0.12), 0 3px 8px oklch(0.54 0.175 292 / 0.25);
+
+  /* Typography fallbacks (overridden by Next.js font loader) */
+  --font-sans:    'DM Sans', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-mono:    'DM Mono', monospace;
+
+  /* Sidebar tokens (kept for admin panel) */
+  --sidebar:                   oklch(0.985 0 0);
+  --sidebar-foreground:        oklch(0.145 0 0);
+  --sidebar-primary:           oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-accent:            oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border:            oklch(0.922 0 0);
+  --sidebar-ring:              oklch(0.708 0 0);
 }
 
 @layer base {
@@ -126,5 +208,75 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ============================================
+   Design System Utility Classes
+   ============================================ */
+
+/* Glossy card surface */
+.surface {
+  background: var(--surface);
+  backdrop-filter: blur(12px) saturate(1.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.surface-raised {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Purple accent border (left stripe on cards) */
+.accent-stripe {
+  border-left: 3px solid var(--purple-400);
+}
+
+/* Tag/pill base */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-tag);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: var(--purple-100);
+  color: var(--purple-600);
+  border: 1px solid var(--purple-200);
+}
+
+/* Score number monospace style */
+.score-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Section wrapper with large radius */
+.section-wrap {
+  border-radius: var(--radius-section);
+  overflow: hidden;
+}
+
+/* Input focus ring using purple */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--purple-400);
+  outline-offset: 0;
+}
+
+/* Shimmer animation for skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

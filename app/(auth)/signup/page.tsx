@@ -5,14 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-   Card,
-   CardContent,
-   CardDescription,
-   CardFooter,
-   CardHeader,
-   CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useStudentAuth } from "@/context/student-auth-context";
 
@@ -21,6 +13,8 @@ interface ValidationErrors {
    email?: string;
    password?: string;
 }
+
+type PasswordStrength = "empty" | "weak" | "fair" | "strong" | "very-strong";
 
 export default function SignupPage() {
    const router = useRouter();
@@ -83,6 +77,42 @@ export default function SignupPage() {
          return "Password must contain at least one number";
       }
       return undefined;
+   };
+
+   const calculatePasswordStrength = (password: string): PasswordStrength => {
+      if (!password) return "empty";
+
+      let score = 0;
+
+      // Length check
+      if (password.length >= 8) score++;
+      if (password.length >= 12) score++;
+
+      // Character variety
+      if (/[a-z]/.test(password)) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^a-zA-Z0-9]/.test(password)) score++; // Special characters
+
+      if (score <= 2) return "weak";
+      if (score === 3) return "fair";
+      if (score === 4 || score === 5) return "strong";
+      return "very-strong";
+   };
+
+   const getPasswordStrengthDisplay = (strength: PasswordStrength) => {
+      switch (strength) {
+         case "empty":
+            return { text: "—", color: "text-foreground-faint" };
+         case "weak":
+            return { text: "Weak", color: "text-[var(--score-fail)]" };
+         case "fair":
+            return { text: "Fair", color: "text-[var(--score-weak)]" };
+         case "strong":
+            return { text: "Strong", color: "text-[var(--score-good)]" };
+         case "very-strong":
+            return { text: "Very strong", color: "text-[var(--score-excellent)]" };
+      }
    };
 
    const handleNameChange = (value: string) => {
@@ -158,18 +188,84 @@ export default function SignupPage() {
       }
    };
 
+   const passwordStrength = calculatePasswordStrength(password);
+   const strengthDisplay = getPasswordStrengthDisplay(passwordStrength);
+
    return (
-      <div className="mx-auto w-full max-w-md px-4 py-10">
-         <Card>
-            <CardHeader>
-               <CardTitle>Create Student Account</CardTitle>
-               <CardDescription>Sign up with your name, email, and password.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               <form className="space-y-4" onSubmit={handleSubmit}>
+      <div className="min-h-screen w-full relative" style={{ background: 'var(--background)' }}>
+         {/* Diagonal grid overlay */}
+         <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+               backgroundImage: `
+                  repeating-linear-gradient(
+                     45deg,
+                     oklch(0.54 0.175 292 / 0.07) 0,
+                     oklch(0.54 0.175 292 / 0.07) 1px,
+                     transparent 1px,
+                     transparent 20px
+                  ),
+                  repeating-linear-gradient(
+                     -45deg,
+                     oklch(0.54 0.175 292 / 0.07) 0,
+                     oklch(0.54 0.175 292 / 0.07) 1px,
+                     transparent 1px,
+                     transparent 20px
+                  )
+               `,
+               backgroundSize: '40px 40px',
+            }}
+         />
+
+         {/* Radial fade */}
+         <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+               background: 'radial-gradient(ellipse 70% 60% at 50% 50%, var(--background) 40%, transparent 100%)',
+            }}
+         />
+
+         {/* Content */}
+         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+            {/* Logo */}
+            <div className="mb-8 text-center">
+               <Link href="/">
+                  <span
+                     className="font-display italic font-semibold text-purple-600"
+                     style={{ fontSize: '1.75rem', letterSpacing: '-0.01em' }}
+                  >
+                     QuizMaster
+                  </span>
+               </Link>
+            </div>
+
+            {/* Auth Card */}
+            <div
+               className="w-full max-w-[420px] surface-raised"
+               style={{
+                  padding: '36px 40px',
+                  borderRadius: 'var(--radius-card)',
+                  boxShadow: 'var(--shadow-raised)',
+               }}
+            >
+               {/* Card Header */}
+               <div className="mb-7">
+                  <h1 className="font-sans font-semibold text-foreground" style={{ fontSize: '1.375rem', marginBottom: '4px' }}>
+                     Create your account
+                  </h1>
+                  <p className="font-sans text-foreground-muted" style={{ fontSize: '0.875rem' }}>
+                     Start testing your knowledge today
+                  </p>
+               </div>
+
+               {/* Signup Form */}
+               <form className="space-y-5" onSubmit={handleSubmit}>
                   <div className="space-y-2">
-                     <label className="text-sm font-medium" htmlFor="name">
-                        Full Name
+                     <label
+                        className="block text-xs uppercase tracking-wider text-foreground-muted"
+                        htmlFor="name"
+                     >
+                        Full name
                      </label>
                      <Input
                         id="name"
@@ -180,12 +276,16 @@ export default function SignupPage() {
                         className={validationErrors.name ? "border-destructive" : ""}
                      />
                      {validationErrors.name && (
-                        <p className="text-xs text-destructive">{validationErrors.name}</p>
+                        <p className="text-xs text-destructive mt-1">{validationErrors.name}</p>
                      )}
                   </div>
+
                   <div className="space-y-2">
-                     <label className="text-sm font-medium" htmlFor="email">
-                        Email
+                     <label
+                        className="block text-xs uppercase tracking-wider text-foreground-muted"
+                        htmlFor="email"
+                     >
+                        Email address
                      </label>
                      <Input
                         id="email"
@@ -198,11 +298,15 @@ export default function SignupPage() {
                         className={validationErrors.email ? "border-destructive" : ""}
                      />
                      {validationErrors.email && (
-                        <p className="text-xs text-destructive">{validationErrors.email}</p>
+                        <p className="text-xs text-destructive mt-1">{validationErrors.email}</p>
                      )}
                   </div>
+
                   <div className="space-y-2">
-                     <label className="text-sm font-medium" htmlFor="password">
+                     <label
+                        className="block text-xs uppercase tracking-wider text-foreground-muted"
+                        htmlFor="password"
+                     >
                         Password
                      </label>
                      <Input
@@ -216,33 +320,50 @@ export default function SignupPage() {
                         className={validationErrors.password ? "border-destructive" : ""}
                      />
                      {validationErrors.password && (
-                        <p className="text-xs text-destructive">{validationErrors.password}</p>
+                        <p className="text-xs text-destructive mt-1">{validationErrors.password}</p>
                      )}
                      {!validationErrors.password && password && (
-                        <div className="text-xs text-muted-foreground space-y-1">
-                           <p className="font-medium">Password requirements:</p>
-                           <ul className="list-disc list-inside space-y-0.5">
-                              <li className={password.length >= 8 ? "text-green-600" : ""}>At least 8 characters</li>
-                              <li className={/[a-z]/.test(password) ? "text-green-600" : ""}>One lowercase letter</li>
-                              <li className={/[A-Z]/.test(password) ? "text-green-600" : ""}>One uppercase letter</li>
-                              <li className={/[0-9]/.test(password) ? "text-green-600" : ""}>One number</li>
-                           </ul>
-                        </div>
+                        <p className="font-mono text-xs mt-1 text-foreground-muted">
+                           Strength: <span className={strengthDisplay.color}>{strengthDisplay.text}</span>
+                        </p>
                      )}
                   </div>
-                  {error ? <p className="text-sm text-destructive font-medium">{error}</p> : null}
-                  <Button type="submit" disabled={loading} className="w-full">
+
+                  {error && (
+                     <p className="text-sm text-destructive font-medium">{error}</p>
+                  )}
+
+                  <Button
+                     type="submit"
+                     disabled={loading}
+                     className="w-full mt-2"
+                     variant="default"
+                  >
                      {loading ? "Creating account..." : "Create account"}
                   </Button>
+
+                  <div className="text-center mt-5">
+                     <p className="text-sm text-foreground-muted">
+                        Already have an account?{" "}
+                        <Link href="/login" className="text-purple-500 font-medium hover:text-purple-600">
+                           Sign in
+                        </Link>
+                     </p>
+                  </div>
                </form>
-            </CardContent>
-            <CardFooter className="text-sm">
-               <span className="text-muted-foreground">Already have an account?</span>
-               <Link className="ml-2 font-medium text-primary hover:underline" href="/login">
-                  Sign in
+            </div>
+
+            {/* Bottom Links */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-foreground-muted">
+               <Link href="/" className="hover:text-foreground transition-colors">
+                  ← Back to Home
                </Link>
-            </CardFooter>
-         </Card>
+               <span className="h-1 w-1 rounded-full bg-foreground-muted opacity-40" />
+               <Link href="/login" className="hover:text-foreground transition-colors">
+                  Sign In
+               </Link>
+            </div>
+         </div>
       </div>
    );
 }

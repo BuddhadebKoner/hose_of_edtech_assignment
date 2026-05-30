@@ -153,75 +153,143 @@ export default function AdminDashboardPage() {
 
    if (!admin) {
       return (
-         <div className="flex min-h-screen flex-col bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/30">
-            {/* Top Navigation */}
-            <nav className="flex items-center justify-between px-6 py-4">
-               <Link href="/" className="flex items-center gap-2.5 group" id="admin-login-nav-logo">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 transition-transform duration-200 group-hover:scale-105">
-                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                     </svg>
-                  </div>
-                  <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                     QuizMaster
-                  </span>
-               </Link>
-               <div className="flex items-center gap-3">
-                  <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Home</Link>
-                  <Link href="/login" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Student Login</Link>
-                  <Link href="/signup" className="rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:shadow-lg hover:brightness-110">
-                     Sign up
-                  </Link>
-               </div>
-            </nav>
+         <div className="min-h-screen w-full relative" style={{ background: 'var(--background)' }}>
+            {/* Diagonal grid overlay */}
+            <div
+               className="absolute inset-0 z-0 pointer-events-none"
+               style={{
+                  backgroundImage: `
+                     repeating-linear-gradient(
+                        45deg,
+                        oklch(0.54 0.175 292 / 0.07) 0,
+                        oklch(0.54 0.175 292 / 0.07) 1px,
+                        transparent 1px,
+                        transparent 20px
+                     ),
+                     repeating-linear-gradient(
+                        -45deg,
+                        oklch(0.54 0.175 292 / 0.07) 0,
+                        oklch(0.54 0.175 292 / 0.07) 1px,
+                        transparent 1px,
+                        transparent 20px
+                     )
+                  `,
+                  backgroundSize: '40px 40px',
+               }}
+            />
 
-            {/* Login Card */}
-            <div className="flex flex-1 flex-col items-center justify-center px-4 pb-16">
+            {/* Radial fade */}
+            <div
+               className="absolute inset-0 z-0 pointer-events-none"
+               style={{
+                  background: 'radial-gradient(ellipse 70% 60% at 50% 50%, var(--background) 40%, transparent 100%)',
+               }}
+            />
+
+            {/* Content */}
+            <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+               {/* Logo */}
                <div className="mb-8 text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-500/20">
-                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <Link href="/">
+                     <span
+                        className="font-display italic font-semibold text-purple-600"
+                        style={{ fontSize: '1.75rem', letterSpacing: '-0.01em' }}
+                     >
+                        QuizMaster
+                     </span>
+                  </Link>
+                  <div className="mt-3">
+                     <span className="tag text-xs">Admin Panel</span>
                   </div>
-                  <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Admin Sign In</h1>
-                  <p className="mt-2 text-muted-foreground">Access the admin dashboard to manage quizzes</p>
                </div>
 
-               <Card className="w-full max-w-md shadow-xl shadow-violet-100/50 dark:shadow-violet-900/10">
-                  <CardHeader>
-                     <CardTitle>Admin Credentials</CardTitle>
-                     <CardDescription>Use the seeded admin credentials to sign in.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                     <form className="space-y-4" onSubmit={handleLogin}>
-                        <div className="space-y-2">
-                           <label className="text-sm font-medium" htmlFor="admin-email">Email</label>
-                           <Input id="admin-email" type="email" autoComplete="email" placeholder="admin@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-sm font-medium" htmlFor="admin-password">Password</label>
-                           <Input id="admin-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                        </div>
-                        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <Button className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110" type="submit" disabled={loading}>
-                           {loading ? "Signing in..." : "Sign in"}
-                        </Button>
-                     </form>
-                  </CardContent>
-                  <CardFooter className="flex flex-col items-center gap-2 text-sm">
-                     <p className="text-xs text-muted-foreground">Admin account is created from environment variables.</p>
-                     <Link href="/login" className="font-semibold text-violet-600 hover:text-violet-700 hover:underline">
-                        ← Back to all login options
-                     </Link>
-                  </CardFooter>
-               </Card>
+               {/* Auth Card */}
+               <div
+                  className="w-full max-w-[380px] surface-raised"
+                  style={{
+                     padding: '36px 40px',
+                     borderRadius: 'var(--radius-card)',
+                     boxShadow: 'var(--shadow-raised)',
+                  }}
+               >
+                  {/* Card Header */}
+                  <div className="mb-7">
+                     <h1 className="font-sans font-semibold text-foreground" style={{ fontSize: '1.25rem', marginBottom: '4px' }}>
+                        Admin sign in
+                     </h1>
+                     <p className="font-sans text-foreground-muted" style={{ fontSize: '0.875rem' }}>
+                        Restricted access
+                     </p>
+                  </div>
 
-               {/* Bottom links */}
-               <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-                  <Link href="/" className="hover:text-foreground transition-colors">← Home</Link>
-                  <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-                  <Link href="/login" className="hover:text-foreground transition-colors">Student Login</Link>
-                  <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-                  <Link href="/signup" className="hover:text-foreground transition-colors">Create Account</Link>
+                  {/* Login Form */}
+                  <form className="space-y-5" onSubmit={handleLogin}>
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="admin-email"
+                        >
+                           Email address
+                        </label>
+                        <Input
+                           id="admin-email"
+                           type="email"
+                           autoComplete="email"
+                           placeholder="admin@example.com"
+                           value={email}
+                           onChange={(e) => setEmail(e.target.value)}
+                           required
+                        />
+                     </div>
+
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="admin-password"
+                        >
+                           Password
+                        </label>
+                        <Input
+                           id="admin-password"
+                           type="password"
+                           autoComplete="current-password"
+                           placeholder="••••••••"
+                           value={password}
+                           onChange={(e) => setPassword(e.target.value)}
+                           required
+                        />
+                     </div>
+
+                     {error && (
+                        <p className="text-sm text-destructive font-medium">{error}</p>
+                     )}
+
+                     <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-2"
+                        variant="default"
+                     >
+                        {loading ? "Signing in..." : "Sign in"}
+                     </Button>
+
+                     <div className="text-center mt-5">
+                        <p className="text-xs text-foreground-faint">
+                           Admin accounts are provisioned by your system administrator.
+                        </p>
+                     </div>
+                  </form>
+               </div>
+
+               {/* Bottom Links */}
+               <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-foreground-muted">
+                  <Link href="/" className="hover:text-foreground transition-colors">
+                     ← Back to Home
+                  </Link>
+                  <span className="h-1 w-1 rounded-full bg-foreground-muted opacity-40" />
+                  <Link href="/login" className="hover:text-foreground transition-colors">
+                     Student Login
+                  </Link>
                </div>
             </div>
          </div>
@@ -303,7 +371,7 @@ export default function AdminDashboardPage() {
                ) : quizzes.length === 0 ? (
                   <div className="flex flex-col items-center gap-4 py-12 text-center">
                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
                      </div>
                      <div>
                         <p className="font-semibold text-foreground">No quizzes yet</p>

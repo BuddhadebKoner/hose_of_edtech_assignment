@@ -6,58 +6,6 @@ import { useAdminAuth } from "@/context/admin-auth-context";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
-const features = [
-   {
-      title: "Create Quizzes Instantly",
-      desc: "Admins can build quizzes with multiple-choice questions, time limits, and tags in minutes.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      ),
-   },
-   {
-      title: "AI-Powered Questions",
-      desc: "Generate quiz questions automatically using AI. Just provide a topic and let the system do the rest.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><circle cx="12" cy="15" r="2"/></svg>
-      ),
-   },
-   {
-      title: "Real-Time Results",
-      desc: "Students get instant scores with detailed explanations for every question after submission.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      ),
-   },
-   {
-      title: "Progress Tracking",
-      desc: "View attempt history, accuracy stats, and best scores all in one profile dashboard.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-      ),
-   },
-   {
-      title: "Admin Analytics",
-      desc: "Admins can view all student attempts, publish/unpublish quizzes, and manage content.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-      ),
-   },
-   {
-      title: "Timed Assessments",
-      desc: "Set time limits for quizzes to simulate real exam conditions and build test-taking skills.",
-      icon: (
-         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      ),
-   },
-];
-
-const steps = [
-   { num: "01", title: "Sign Up", desc: "Create your free student account in seconds." },
-   { num: "02", title: "Browse Quizzes", desc: "Explore published quizzes across various topics." },
-   { num: "03", title: "Take the Quiz", desc: "Answer questions within the time limit." },
-   { num: "04", title: "Track Progress", desc: "View scores, accuracy, and attempt history." },
-];
-
 export default function HomePage() {
    const { student } = useStudentAuth();
    const { admin } = useAdminAuth();
@@ -67,207 +15,254 @@ export default function HomePage() {
       <div className="flex min-h-screen flex-col">
          <Navbar />
 
-         {/* Hero */}
-         <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/30">
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-               <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-violet-200/30 blur-3xl dark:bg-violet-900/20" />
-               <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-indigo-200/30 blur-3xl dark:bg-indigo-900/20" />
-            </div>
-            <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-32 lg:py-40">
-               <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-xs font-semibold text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
-                  House of EdTech Assignment
-               </span>
-               <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                  Master Any Subject with{" "}
-                  <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                     Interactive Quizzes
-                  </span>
-               </h1>
-               <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                  A modern quiz platform where educators create engaging assessments and students track their learning journey — all powered by AI.
-               </p>
-               <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                  {isLoggedIn ? (
-                     <Link
-                        href={admin ? "/admin" : "/dashboard"}
-                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all duration-200 hover:shadow-xl hover:brightness-110"
-                        id="hero-cta-dashboard"
-                     >
-                        Go to {admin ? "Admin Panel" : "Dashboard"}
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                     </Link>
-                  ) : (
-                     <>
-                        <Link
-                           href="/signup"
-                           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all duration-200 hover:shadow-xl hover:brightness-110"
-                           id="hero-cta-signup"
-                        >
-                           Get Started Free
-                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </Link>
-                        <Link
-                           href="/login"
-                           className="inline-flex items-center gap-2 rounded-xl border border-border px-8 py-3.5 text-sm font-semibold text-foreground transition-all duration-200 hover:bg-accent"
-                           id="hero-cta-login"
-                        >
-                           Log in
-                        </Link>
-                     </>
-                  )}
-               </div>
-               {/* Stats */}
-               <div className="mt-16 grid grid-cols-3 gap-8 sm:gap-16">
-                  {[
-                     { val: "∞", label: "Quizzes to create" },
-                     { val: "AI", label: "Powered questions" },
-                     { val: "100%", label: "Free to use" },
-                  ].map((s) => (
-                     <div key={s.label} className="text-center">
-                        <p className="text-2xl font-bold text-foreground sm:text-3xl">{s.val}</p>
-                        <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{s.label}</p>
+         {/* Hero Section */}
+         <section className="relative overflow-hidden" style={{ padding: '80px 0 64px' }}>
+            {/* Subtle grid pattern */}
+            <div
+               className="absolute inset-0 z-0 pointer-events-none"
+               style={{
+                  backgroundImage: `
+                     repeating-linear-gradient(
+                        45deg,
+                        oklch(0.54 0.175 292 / 0.04) 0,
+                        oklch(0.54 0.175 292 / 0.04) 1px,
+                        transparent 1px,
+                        transparent 20px
+                     ),
+                     repeating-linear-gradient(
+                        -45deg,
+                        oklch(0.54 0.175 292 / 0.04) 0,
+                        oklch(0.54 0.175 292 / 0.04) 1px,
+                        transparent 1px,
+                        transparent 20px
+                     )
+                  `,
+                  backgroundSize: '40px 40px',
+               }}
+            />
+            {/* Radial fade */}
+            <div
+               className="absolute inset-0 z-0 pointer-events-none"
+               style={{
+                  background: 'radial-gradient(ellipse 80% 70% at 50% 30%, var(--background) 50%, transparent 100%)',
+               }}
+            />
+            <div className="relative z-10 mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8">
+               <div className="grid gap-12 lg:grid-cols-[58%_42%] lg:gap-16">
+                  {/* Left Column - Text */}
+                  <div>
+                     <span className="tag text-xs">Quiz Platform</span>
+                     <h1 className="mt-6 font-display italic font-bold leading-[1.1] tracking-tight" style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', letterSpacing: '-0.02em' }}>
+                        <span className="block text-foreground">Test What</span>
+                        <span className="block text-foreground">You Know.</span>
+                        <span className="block text-purple-500">Prove It.</span>
+                     </h1>
+                     <p className="mt-5 max-w-[420px] text-lg text-foreground-muted">
+                        A clean, focused quiz experience built for students who mean business.
+                     </p>
+                     <div className="mt-8 flex flex-wrap items-center gap-3">
+                        {isLoggedIn ? (
+                           <Link
+                              href={admin ? "/admin" : "/dashboard"}
+                              className="rounded-button bg-purple-500 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-600 shadow-button"
+                           >
+                              Go to {admin ? "Admin Panel" : "Dashboard"}
+                           </Link>
+                        ) : (
+                           <>
+                              <Link
+                                 href="/signup"
+                                 className="rounded-button bg-purple-500 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-600 shadow-button"
+                              >
+                                 Start Learning
+                              </Link>
+                              <Link
+                                 href="/login"
+                                 className="rounded-button border-[1.5px] border-border-strong bg-transparent px-6 py-3 text-sm font-medium text-foreground transition-all duration-200 hover:border-purple-400 hover:bg-purple-100"
+                              >
+                                 View Quizzes
+                              </Link>
+                           </>
+                        )}
                      </div>
-                  ))}
-               </div>
-            </div>
-         </section>
+                     <p className="mt-6 text-xs text-foreground-faint">
+                        2,400+ quizzes taken · No account needed to browse
+                     </p>
+                  </div>
 
-         {/* Features */}
-         <section className="bg-background py-20 sm:py-28" id="features">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-               <div className="text-center">
-                  <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">Features</span>
-                  <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
-                     Everything you need for assessments
-                  </h2>
-                  <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                     From quiz creation to analytics, our platform provides a complete toolkit for modern education.
-                  </p>
-               </div>
-               <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {features.map((f) => (
-                     <div
-                        key={f.title}
-                        className="group rounded-2xl border border-border/50 bg-card p-6 transition-all duration-300 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 dark:hover:border-violet-800"
-                     >
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 transition-colors group-hover:bg-violet-600 group-hover:text-white dark:bg-violet-950/50 dark:text-violet-400 dark:group-hover:bg-violet-600">
-                           {f.icon}
+                  {/* Right Column - Quiz Card Mockup */}
+                  <div className="flex items-center justify-center">
+                     <div className="surface-raised w-full max-w-sm p-6 transform rotate-2">
+                        <h3 className="font-sans font-semibold text-foreground text-base">Introduction to JavaScript</h3>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                           <span className="tag text-xs">Programming</span>
+                           <span className="tag text-xs">Beginner</span>
                         </div>
-                        <h3 className="mt-4 text-lg font-semibold text-foreground">{f.title}</h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+                        <div className="mt-4 space-y-2">
+                           <div className="h-3 bg-border rounded w-full"></div>
+                           <div className="h-3 bg-border rounded w-5/6"></div>
+                           <div className="h-3 bg-border rounded w-4/6"></div>
+                        </div>
+                        <div className="mt-6 flex items-center justify-between">
+                           <div className="inline-flex items-center gap-2 rounded-tag bg-success-surface px-3 py-1.5 border border-success/20">
+                              <span className="score-mono text-success text-lg font-medium">94%</span>
+                           </div>
+                           <button className="rounded-button bg-purple-500 px-4 py-2 text-xs font-medium text-white">
+                              Start Quiz
+                           </button>
+                        </div>
                      </div>
-                  ))}
+                  </div>
                </div>
             </div>
          </section>
 
-         {/* How It Works */}
-         <section className="bg-muted/30 py-20 sm:py-28">
+         {/* Features Section */}
+         <section className="bg-background py-16 sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-               <div className="text-center">
-                  <span className="text-sm font-semibold uppercase tracking-wider text-violet-600">How it works</span>
-                  <h2 className="mt-2 text-3xl font-bold text-foreground sm:text-4xl">
-                     Start learning in 4 simple steps
+               <div className="text-center mb-12">
+                  <span className="text-sm font-semibold uppercase tracking-wider text-purple-600">Features</span>
+                  <h2 className="mt-2 text-3xl font-sans font-semibold text-foreground">
+                     Everything you need
                   </h2>
                </div>
-               <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                  {steps.map((s) => (
-                     <div key={s.num} className="relative text-center">
-                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-xl font-bold text-white shadow-lg shadow-violet-500/20">
-                           {s.num}
-                        </div>
-                        <h3 className="mt-5 text-lg font-semibold text-foreground">{s.title}</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+
+               {/* Asymmetric Layout */}
+               <div className="space-y-4">
+                  {/* Row 1: Large + Small */}
+                  <div className="grid gap-4 lg:grid-cols-3">
+                     <div className="surface lg:col-span-2 p-8">
+                        <h3 className="font-sans font-semibold text-foreground text-xl">AI-Powered Questions</h3>
+                        <p className="mt-3 text-foreground-muted leading-relaxed">
+                           Generate quiz questions automatically using AI. Just provide a topic and let the system create engaging, relevant questions in seconds.
+                        </p>
+                        <p className="mt-2 text-foreground-muted leading-relaxed">
+                           Save time on content creation and focus on what matters — teaching and learning.
+                        </p>
                      </div>
-                  ))}
+                     <div className="surface p-8 relative overflow-hidden">
+                        <span className="absolute top-4 right-4 font-display text-[5rem] leading-none" style={{ color: 'var(--purple-200)' }}>01</span>
+                        <h3 className="font-sans font-semibold text-foreground text-xl relative z-10">Instant Scoring</h3>
+                     </div>
+                  </div>
+
+                  {/* Row 2: Small + Large */}
+                  <div className="grid gap-4 lg:grid-cols-3">
+                     <div className="surface p-8 relative overflow-hidden">
+                        <span className="absolute top-4 right-4 font-display text-[5rem] leading-none" style={{ color: 'var(--purple-200)' }}>02</span>
+                        <h3 className="font-sans font-semibold text-foreground text-xl relative z-10">Progress Tracking</h3>
+                     </div>
+                     <div className="surface lg:col-span-2 p-8">
+                        <h3 className="font-sans font-semibold text-foreground text-xl">Real-Time Analytics</h3>
+                        <p className="mt-3 text-foreground-muted leading-relaxed">
+                           Track every attempt, view accuracy stats, and monitor improvement over time. Students see their best scores and can retake quizzes to improve.
+                        </p>
+                        <p className="mt-2 text-foreground-muted leading-relaxed">
+                           Admins get complete visibility into student performance with detailed analytics dashboards.
+                        </p>
+                     </div>
+                  </div>
                </div>
             </div>
          </section>
 
-         {/* For Students & Admins */}
-         <section className="bg-background py-20 sm:py-28">
+         {/* How It Works Section */}
+         <section className="py-16 sm:py-20" style={{ background: 'oklch(0.94 0.030 292 / 0.3)' }}>
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+               <div className="rounded-section overflow-hidden" style={{ background: 'oklch(0.94 0.030 292 / 0.3)', padding: '40px 48px' }}>
+                  <div className="grid gap-8 md:grid-cols-4">
+                     <div className="text-center">
+                        <div className="score-mono text-purple-400 text-2xl font-medium">01</div>
+                        <h3 className="mt-3 font-sans font-semibold text-foreground">Sign Up</h3>
+                        <p className="mt-2 text-sm text-foreground-muted">Create your account</p>
+                     </div>
+                     <div className="hidden md:flex items-center justify-center">
+                        <div className="h-px w-full bg-border"></div>
+                     </div>
+                     <div className="text-center">
+                        <div className="score-mono text-purple-400 text-2xl font-medium">02</div>
+                        <h3 className="mt-3 font-sans font-semibold text-foreground">Browse Quizzes</h3>
+                        <p className="mt-2 text-sm text-foreground-muted">Find your topic</p>
+                     </div>
+                     <div className="hidden md:flex items-center justify-center">
+                        <div className="h-px w-full bg-border"></div>
+                     </div>
+                     <div className="text-center">
+                        <div className="score-mono text-purple-400 text-2xl font-medium">03</div>
+                        <h3 className="mt-3 font-sans font-semibold text-foreground">Take Quiz</h3>
+                        <p className="mt-2 text-sm text-foreground-muted">Answer questions</p>
+                     </div>
+                     <div className="hidden md:flex items-center justify-center">
+                        <div className="h-px w-full bg-border"></div>
+                     </div>
+                     <div className="text-center">
+                        <div className="score-mono text-purple-400 text-2xl font-medium">04</div>
+                        <h3 className="mt-3 font-sans font-semibold text-foreground">Track Progress</h3>
+                        <p className="mt-2 text-sm text-foreground-muted">View your results</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
+         {/* For Students Section */}
+         <section className="bg-background py-16 sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                <div className="grid gap-12 lg:grid-cols-2">
-                  {/* Student */}
-                  <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-violet-50 to-indigo-50 p-8 dark:from-violet-950/20 dark:to-indigo-950/20">
-                     <span className="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-900/50 dark:text-violet-300">
-                        For Students
-                     </span>
-                     <h3 className="mt-4 text-2xl font-bold text-foreground">Your Learning Hub</h3>
+                  {/* Left - Benefits */}
+                  <div>
+                     <h2 className="text-2xl font-sans font-semibold text-foreground">For Students</h2>
                      <ul className="mt-6 space-y-3">
-                        {["Browse & take published quizzes", "Instant scoring with explanations", "Track all your attempts & progress", "View best scores and accuracy stats", "Retake quizzes to improve"].map((item) => (
-                           <li key={item} className="flex items-start gap-3 text-sm text-muted-foreground">
-                              <svg className="mt-0.5 flex-shrink-0 text-violet-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                              {item}
+                        {[
+                           "Browse published quizzes across topics",
+                           "Instant scoring with detailed explanations",
+                           "Track all attempts and progress",
+                           "Retake quizzes to improve scores"
+                        ].map((item) => (
+                           <li key={item} className="flex items-start gap-3 text-foreground-muted">
+                              <span className="text-purple-500 mt-1">•</span>
+                              <span>{item}</span>
                            </li>
                         ))}
                      </ul>
-                     <div className="mt-6 flex flex-wrap items-center gap-4">
-                        <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700">
-                           Create student account
-                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </Link>
-                        <Link href="/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-violet-600">
-                           Already have an account? Log in
-                        </Link>
-                     </div>
                   </div>
-                  {/* Admin */}
-                  <div className="rounded-2xl border border-border/50 bg-gradient-to-br from-slate-50 to-gray-50 p-8 dark:from-gray-900/50 dark:to-gray-800/30">
-                     <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        For Admins
-                     </span>
-                     <h3 className="mt-4 text-2xl font-bold text-foreground">Complete Control</h3>
-                     <ul className="mt-6 space-y-3">
-                        {["Create & manage unlimited quizzes", "Add questions manually or with AI", "Publish/unpublish quizzes anytime", "View all student attempts & scores", "Full admin dashboard with stats"].map((item) => (
-                           <li key={item} className="flex items-start gap-3 text-sm text-muted-foreground">
-                              <svg className="mt-0.5 flex-shrink-0 text-slate-600 dark:text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                              {item}
-                           </li>
-                        ))}
-                     </ul>
-                     <div className="mt-6 flex flex-wrap items-center gap-4">
-                        <Link href="/admin" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white">
-                           Go to admin panel
-                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </Link>
-                        <Link href="/login" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-slate-700 dark:hover:text-slate-300">
-                           Admin sign in
-                        </Link>
+
+                  {/* Right - Stats Cluster */}
+                  <div className="surface-raised p-8">
+                     <div className="grid grid-cols-2 gap-6">
+                        <div>
+                           <div className="score-mono text-4xl font-medium text-foreground">2.4k</div>
+                           <div className="mt-1 text-sm text-foreground-muted">Quizzes Taken</div>
+                        </div>
+                        <div>
+                           <div className="score-mono text-4xl font-medium text-foreground">98%</div>
+                           <div className="mt-1 text-sm text-foreground-muted">Satisfaction</div>
+                        </div>
+                        <div className="col-span-2">
+                           <div className="score-mono text-4xl font-medium text-foreground">12min</div>
+                           <div className="mt-1 text-sm text-foreground-muted">Average Duration</div>
+                        </div>
                      </div>
                   </div>
                </div>
             </div>
          </section>
 
-         {/* CTA */}
-         <section className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-indigo-600 py-20">
-            <div className="absolute inset-0 pointer-events-none">
-               <div className="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-               <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-            </div>
-            <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6">
-               <h2 className="text-3xl font-bold text-white sm:text-4xl">
-                  Ready to start your learning journey?
+         {/* CTA Section */}
+         <section className="mx-4 my-10 sm:mx-6 lg:mx-8">
+            <div className="mx-auto max-w-7xl rounded-section overflow-hidden bg-purple-600 px-8 py-16 text-center">
+               <h2 className="font-display italic text-3xl font-semibold text-white sm:text-4xl">
+                  Ready to test yourself?
                </h2>
-               <p className="mx-auto mt-4 max-w-xl text-lg text-violet-100">
-                  Join QuizMaster today and take your first quiz. It&apos;s completely free.
+               <p className="mx-auto mt-4 max-w-xl text-lg" style={{ color: 'oklch(1 0 0 / 0.85)' }}>
+                  Join QuizMaster today and start your learning journey.
                </p>
-               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+               <div className="mt-8">
                   <Link
                      href="/signup"
-                     className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-semibold text-violet-700 shadow-lg transition-all duration-200 hover:bg-violet-50 hover:shadow-xl"
-                     id="cta-signup"
+                     className="inline-flex items-center gap-2 rounded-button bg-white px-8 py-3.5 text-sm font-semibold text-purple-600 transition-all duration-200 hover:bg-purple-50"
                   >
-                     Sign up for free
-                  </Link>
-                  <Link
-                     href="/login"
-                     className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-8 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10"
-                     id="cta-login"
-                  >
-                     Log in
+                     Get Started Free
                   </Link>
                </div>
             </div>

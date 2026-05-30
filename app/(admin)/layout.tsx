@@ -15,23 +15,29 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
    }
 
    return (
-      <div className="flex min-h-screen">
+      <div className="h-screen flex overflow-hidden" style={{ background: 'var(--background)' }}>
          <AdminSidebar
             mobileOpen={mobileSidebarOpen}
             onMobileClose={() => setMobileSidebarOpen(false)}
          />
+
+         {/* Mobile backdrop */}
          {mobileSidebarOpen && (
             <div
-               className="fixed inset-0 z-40 bg-black/40 md:hidden"
+               className="fixed inset-0 z-40 md:hidden"
+               style={{ background: 'oklch(0 0 0 / 0.4)' }}
                onClick={() => setMobileSidebarOpen(false)}
                aria-hidden="true"
             />
          )}
-         <div className="flex min-h-screen flex-1 flex-col">
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/40 bg-background/80 px-4 backdrop-blur md:hidden">
+
+         {/* Main content area - separate scroll container */}
+         <div className="flex-1 flex flex-col h-screen overflow-hidden">
+            {/* Mobile header with hamburger */}
+            <header className="flex-shrink-0 flex h-14 items-center gap-3 px-4 md:hidden" style={{ background: 'var(--background)', borderBottom: '1px solid var(--border)' }}>
                <button
                   onClick={() => setMobileSidebarOpen(true)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="flex h-9 w-9 items-center justify-center rounded-input text-foreground-muted transition-colors hover:bg-purple-100 hover:text-foreground"
                   aria-label="Open sidebar"
                   type="button"
                >
@@ -43,7 +49,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                </button>
                <span className="text-sm font-semibold text-foreground">Admin Panel</span>
             </header>
-            <main className="flex-1 overflow-y-auto bg-background">
+
+            {/* Scrollable main content */}
+            <main
+               className="flex-1 overflow-y-auto"
+               style={{
+                  background: 'var(--background)',
+                  backgroundImage: `
+                     repeating-linear-gradient(45deg, oklch(0.54 0.175 292 / 0.03) 0, oklch(0.54 0.175 292 / 0.03) 1px, transparent 1px, transparent 20px),
+                     repeating-linear-gradient(-45deg, oklch(0.54 0.175 292 / 0.03) 0, oklch(0.54 0.175 292 / 0.03) 1px, transparent 1px, transparent 20px)
+                  `,
+                  backgroundSize: '40px 40px',
+               }}
+            >
                {children}
             </main>
          </div>

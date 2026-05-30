@@ -1,27 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useAdminAuth } from "@/context/admin-auth-context";
 import {
   createQuestion,
@@ -67,6 +57,7 @@ export default function AdminQuizDetailPage() {
 
   const [questionForm, setQuestionForm] = useState({ ...EMPTY_QUESTION });
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [questionError, setQuestionError] = useState<string | null>(null);
 
   const [topic, setTopic] = useState("");
@@ -75,8 +66,6 @@ export default function AdminQuizDetailPage() {
   const [aiTesting, setAiTesting] = useState(false);
   const [aiQuestions, setAiQuestions] = useState<GeneratedQuestion[]>([]);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [aiTestStatus, setAiTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
-  const [aiTestMessage, setAiTestMessage] = useState<string | null>(null);
   const [bulkAdding, setBulkAdding] = useState(false);
 
   useEffect(() => {
@@ -159,7 +148,9 @@ export default function AdminQuizDetailPage() {
 
   const resetQuestionForm = useCallback(() => {
     setEditingQuestionId(null);
+    setDialogOpen(false);
     setQuestionForm({ ...EMPTY_QUESTION });
+    setQuestionError(null);
   }, []);
 
   const handleQuestionSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -188,6 +179,7 @@ export default function AdminQuizDetailPage() {
 
   const handleEditQuestion = (question: Question) => {
     setEditingQuestionId(question.id);
+    setDialogOpen(true);
     setQuestionForm({
       questionText: question.questionText,
       options: question.options,
@@ -237,16 +229,12 @@ export default function AdminQuizDetailPage() {
     const fallbackTopic = quiz?.title ?? "general knowledge";
     const trimmedTopic = topic.trim() || fallbackTopic;
     setAiTesting(true);
-    setAiTestStatus("testing");
-    setAiTestMessage(null);
     setAiError(null);
     try {
       await generateQuestions(quizId, trimmedTopic, 1);
-      setAiTestStatus("success");
-      setAiTestMessage("AI connection OK.");
+      setAiError("✓ AI connection OK");
     } catch (err) {
-      setAiTestStatus("error");
-      setAiTestMessage(err instanceof Error ? err.message : "AI test failed");
+      setAiError(err instanceof Error ? err.message : "AI test failed");
     } finally {
       setAiTesting(false);
     }
@@ -298,14 +286,9 @@ export default function AdminQuizDetailPage() {
     }
   };
 
-  const questionTitle = useMemo(
-    () => (editingQuestionId ? "Edit question" : "Add new question"),
-    [editingQuestionId]
-  );
-
   if ((loading || loadingQuiz) && !quiz) {
     return (
-      <div className="mx-auto w-full max-w-4xl space-y-4 px-4 py-10">
+      <div className="mx-auto w-full max-w-[1200px] space-y-4 px-6 py-10">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
@@ -316,226 +299,555 @@ export default function AdminQuizDetailPage() {
   if (!admin || !quiz) return null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-6 px-4 py-10">
-      {/* Header */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <div className="max-w-[1200px] mx-auto px-6 py-8">
+      {/* Page header */}
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold">Edit quiz</h1>
-          <p className="text-sm text-muted-foreground">Update details, manage questions, and publish.</p>
+          <h1 className="font-sans font-semibold" style={{ fontSize: '1.375rem' }}>
+            {quiz.title}
+          </h1>
+          <p className="font-sans text-foreground-muted" style={{ fontSize: '0.875rem', marginTop: '2px' }}>
+            {questions.length} questions · {quiz.isPublished ? 'Published' : 'Draft'}
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => router.push("/admin")}>Back to dashboard</Button>
-          <Button variant="secondary" disabled={actionId === quiz.id} onClick={handlePublishToggle}>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" onClick={() => router.push("/admin")}>
+            ← Dashboard
+          </Button>
+          <Button
+            variant={quiz.isPublished ? "outline" : "default"}
+            onClick={handlePublishToggle}
+            disabled={actionId === quiz.id}
+          >
             {quiz.isPublished ? "Unpublish" : "Publish"}
           </Button>
-          <Button variant="destructive" disabled={actionId === quiz.id} onClick={handleDeleteQuiz}>Delete quiz</Button>
         </div>
       </div>
 
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error && (
+        <div className="mb-6 px-4 py-3 rounded-input" style={{ background: 'var(--destructive-surface)', border: '1px solid var(--destructive)' }}>
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
 
-      {/* ─── AI QUESTION GENERATOR (TOP, HIGHLIGHTED) ─── */}
-      <div className="relative overflow-hidden rounded-2xl border-2 border-violet-300 bg-gradient-to-br from-violet-50 via-indigo-50 to-purple-50 shadow-lg shadow-violet-100/50 dark:border-violet-700 dark:from-violet-950/40 dark:via-indigo-950/30 dark:to-purple-950/20 dark:shadow-violet-900/20">
-        {/* Sparkle badge */}
-        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-violet-400/20 blur-2xl" />
-        <div className="absolute -left-6 -bottom-6 h-20 w-20 rounded-full bg-indigo-400/20 blur-2xl" />
+      {/* Two-column layout */}
+      <div className="grid gap-6 lg:grid-cols-[65%_35%]">
+        {/* Left column */}
+        <div className="space-y-5">
+          {/* AI Generator Section */}
+          <div
+            className="surface-raised accent-stripe"
+            style={{
+              padding: '24px',
+              borderRadius: 'var(--radius-card)',
+              boxShadow: 'var(--shadow-raised)',
+            }}
+          >
+            {/* Section label */}
+            <div className="flex items-center gap-2 mb-4">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+              <span
+                className="font-sans font-semibold uppercase"
+                style={{
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.08em',
+                  color: 'var(--purple-600)'
+                }}
+              >
+                AI Generator
+              </span>
+            </div>
 
-        <div className="relative p-6">
-          {/* Section title */}
-          <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-md">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" /><circle cx="12" cy="15" r="2" /></svg>
+            {/* Input row */}
+            <div className="flex gap-3 mb-3">
+              <Input
+                placeholder="Enter a topic, e.g. 'JavaScript closures'"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                min={1}
+                max={10}
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                className="w-20"
+              />
+              <Button
+                variant="default"
+                onClick={handleGenerate}
+                disabled={aiLoading || !topic.trim()}
+              >
+                {aiLoading ? "Generating..." : "Generate"}
+              </Button>
+            </div>
+
+            {/* Test AI link */}
+            <div className="text-right">
+              <button
+                onClick={handleTestAi}
+                disabled={aiTesting}
+                className="text-xs text-foreground-muted hover:text-purple-500 transition-colors disabled:opacity-50"
+              >
+                {aiTesting ? "Testing..." : "Test AI connection →"}
+              </button>
+            </div>
+
+            {/* Error/Status */}
+            {aiError && (
+              <div
+                className="mt-3 px-3 py-2 rounded-input"
+                style={{
+                  background: aiError.startsWith('✓') ? 'var(--success-surface)' : 'var(--destructive-surface)',
+                  border: `1px solid ${aiError.startsWith('✓') ? 'var(--success)' : 'var(--destructive)'}`
+                }}
+              >
+                <p className={`text-sm ${aiError.startsWith('✓') ? 'text-success' : 'text-destructive'}`}>{aiError}</p>
+              </div>
+            )}
+
+            {/* Generated Questions Preview */}
+            {aiQuestions.length > 0 && (
+              <div className="mt-5 space-y-2">
+                <div className="flex items-center justify-between pb-2 border-b border-border">
+                  <span className="text-sm font-medium text-foreground">Generated Questions</span>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={handleAddAllAiQuestions}
+                    disabled={bulkAdding}
+                  >
+                    {bulkAdding ? "Adding..." : `Add All (${aiQuestions.length})`}
+                  </Button>
+                </div>
+
+                {aiQuestions.map((q, index) => (
+                  <div
+                    key={index}
+                    className="p-4 rounded-input"
+                    style={{
+                      background: 'oklch(0.94 0.030 292 / 0.4)',
+                      border: '1px solid var(--purple-200)'
+                    }}
+                  >
+                    {/* Question number */}
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <span className="tag text-xs">Q{index + 1}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleAddAiQuestion(q)}
+                        disabled={actionId === q.questionText}
+                      >
+                        {actionId === q.questionText ? "Adding..." : "Add to quiz"}
+                      </Button>
+                    </div>
+
+                    {/* Question text */}
+                    <p className="font-sans font-medium text-foreground text-sm mb-2">
+                      {q.questionText}
+                    </p>
+
+                    {/* Options */}
+                    <div className="space-y-1">
+                      {q.options.map((opt, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{
+                              background: oi === q.correctIndex ? 'var(--success)' : 'transparent',
+                              border: oi === q.correctIndex ? 'none' : '1.5px solid var(--border-strong)'
+                            }}
+                          />
+                          <span className="text-xs text-foreground-muted">{opt}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Explanation */}
+                    {q.explanation && (
+                      <div className="mt-2 pt-2 border-t border-border">
+                        <p className="text-xs italic text-foreground-faint">
+                          <span className="font-sans uppercase text-[0.65rem] not-italic">Explanation:</span> {q.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Questions List Section */}
+          <div className="space-y-4">
+            {/* Section header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="font-sans font-semibold text-foreground" style={{ fontSize: '0.95rem' }}>
+                  Questions
+                </h2>
+                <span className="tag">{questions.length} total</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  resetQuestionForm();
+                  setDialogOpen(true);
+                }}
+              >
+                Add Question
+              </Button>
+            </div>
+
+            {/* Questions list */}
+            {questions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-foreground-muted mb-1">No questions yet</p>
+                <p className="text-xs text-foreground-faint">Use the AI generator above or add manually.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {questions.map((q, index) => (
+                  <div
+                    key={q.id}
+                    className="surface p-4 rounded-input"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Drag handle */}
+                      <div className="flex-shrink-0 text-foreground-faint">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="9" cy="5" r="2" /><circle cx="9" cy="12" r="2" /><circle cx="9" cy="19" r="2" />
+                          <circle cx="15" cy="5" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="15" cy="19" r="2" />
+                        </svg>
+                      </div>
+
+                      {/* Order number */}
+                      <span className="font-mono text-xs text-foreground-faint flex-shrink-0">
+                        {q.order ?? index}
+                      </span>
+
+                      {/* Question content */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans font-medium text-sm text-foreground line-clamp-2 mb-1">
+                          {q.questionText}
+                        </p>
+                        <p className="text-xs text-foreground-faint">
+                          {q.options.slice(0, 2).join(", ")}...
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => handleEditQuestion(q)}
+                          className="w-7 h-7 flex items-center justify-center rounded-input text-foreground-muted hover:bg-purple-100 hover:text-foreground transition-colors"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteQuestion(q)}
+                          disabled={actionId === q.id}
+                          className="w-7 h-7 flex items-center justify-center rounded-input text-foreground-muted hover:bg-purple-100 hover:text-destructive transition-colors disabled:opacity-50"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right column - Quiz Settings (sticky) */}
+        <div>
+          <div
+            className="surface-raised p-6 rounded-card"
+            style={{
+              position: 'sticky',
+              top: '24px',
+              boxShadow: 'var(--shadow-raised)'
+            }}
+          >
+            {/* Section label */}
+            <h2
+              className="font-sans font-semibold uppercase mb-5"
+              style={{
+                fontSize: '0.7rem',
+                letterSpacing: '0.08em',
+                color: 'var(--foreground-faint)'
+              }}
+            >
+              Quiz Settings
+            </h2>
+
+            {/* Fields */}
+            <div className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-muted mb-1">
+                  Title
+                </label>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-foreground-faint mt-1 text-right">
+                  {title.length}/100
+                </p>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-muted mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-3 py-2 rounded-input border border-border bg-input text-sm resize-none"
+                  rows={3}
+                />
+              </div>
+
+              {/* Time Limit */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-muted mb-1">
+                  Time Limit
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={timeLimit}
+                    onChange={(e) => setTimeLimit(e.target.value)}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-foreground-muted">min</span>
+                </div>
+              </div>
+
+              {/* Question Limit */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-muted mb-1">
+                  Questions per attempt
+                </label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={questionLimit}
+                  onChange={(e) => setQuestionLimit(e.target.value)}
+                />
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-muted mb-1">
+                  Tags
+                </label>
+                <Input
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="comma, separated, tags"
+                />
+                {/* Tag preview */}
+                {tagsInput && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {tagsInput.split(",").map((tag, i) => {
+                      const trimmed = tag.trim();
+                      return trimmed ? (
+                        <span key={i} className="tag text-xs">{trimmed}</span>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Save button */}
+            <Button
+              onClick={handleQuizSave}
+              disabled={savingQuiz}
+              className="w-full mt-5"
+              variant="default"
+            >
+              {savingQuiz ? "Saving..." : "Save Changes"}
+            </Button>
+
+            {/* Status info */}
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-foreground-muted">Status:</span>
+                <span
+                  className="tag text-xs"
+                  style={{
+                    background: quiz.isPublished ? 'var(--success-surface)' : 'var(--warning-surface)',
+                    color: quiz.isPublished ? 'var(--success)' : 'var(--warning)',
+                    borderColor: quiz.isPublished ? 'var(--success)' : 'var(--warning)'
+                  }}
+                >
+                  {quiz.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
+              <button
+                onClick={handlePublishToggle}
+                disabled={actionId === quiz.id}
+                className="text-xs text-purple-500 hover:text-purple-600 underline disabled:opacity-50"
+              >
+                {quiz.isPublished ? "Unpublish this quiz" : "Publish this quiz"}
+              </button>
+            </div>
+
+            {/* Danger zone */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <h3
+                className="text-xs uppercase tracking-wider mb-3"
+                style={{ color: 'var(--destructive)' }}
+              >
+                Danger Zone
+              </h3>
+              <Button
+                onClick={handleDeleteQuiz}
+                disabled={actionId === quiz.id}
+                variant="outline"
+                className="w-full text-destructive border-destructive hover:bg-destructive-surface"
+              >
+                Delete Quiz
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add/Edit Question Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingQuestionId ? "Edit Question" : "Add Question"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleQuestionSubmit} className="space-y-4">
+            {/* Question Text */}
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-foreground-faint mb-1">
+                Question
+              </label>
+              <textarea
+                value={questionForm.questionText}
+                onChange={(e) => setQuestionForm(p => ({ ...p, questionText: e.target.value }))}
+                placeholder="Enter your question..."
+                className="w-full px-3 py-2 rounded-input border border-border bg-input text-sm resize-none"
+                rows={3}
+                required
+              />
+            </div>
+
+            {/* Options */}
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-foreground-faint mb-2">
+                Options
+              </label>
+              <div className="space-y-2">
+                {questionForm.options.map((opt, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    {/* Radio-style selector */}
+                    <button
+                      type="button"
+                      onClick={() => setQuestionForm(p => ({ ...p, correctIndex: index }))}
+                      className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center transition-colors"
+                      style={{
+                        border: '1.5px solid var(--border-strong)',
+                        background: questionForm.correctIndex === index ? 'var(--success)' : 'transparent'
+                      }}
+                    >
+                      {questionForm.correctIndex === index && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </button>
+
+                    {/* Option label */}
+                    <span className="font-mono text-xs text-foreground-faint w-4">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+
+                    {/* Option input */}
+                    <Input
+                      value={opt}
+                      onChange={(e) => {
+                        const opts = [...questionForm.options];
+                        opts[index] = e.target.value;
+                        setQuestionForm(p => ({ ...p, options: opts }));
+                      }}
+                      placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                      className="flex-1"
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Explanation & Order */}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-foreground-faint mb-1">
+                  Explanation (optional)
+                </label>
+                <textarea
+                  value={questionForm.explanation}
+                  onChange={(e) => setQuestionForm(p => ({ ...p, explanation: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-input border border-border bg-input text-sm resize-none"
+                  rows={2}
+                />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-foreground">AI Question Generator</h2>
-                <p className="text-sm text-muted-foreground">Generate questions instantly with AI — add them one-by-one or all at once</p>
+                <label className="block text-xs uppercase tracking-wider text-foreground-faint mb-1">
+                  Order
+                </label>
+                <Input
+                  type="number"
+                  value={questionForm.order}
+                  onChange={(e) => setQuestionForm(p => ({ ...p, order: Number(e.target.value) }))}
+                  className="w-20"
+                />
               </div>
             </div>
-            <span className="mt-2 inline-flex items-center gap-1.5 self-start rounded-full border border-violet-300 bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-700 dark:bg-violet-900/50 dark:text-violet-300 sm:mt-0">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-500" />
-              AI Powered
-            </span>
-          </div>
 
-          {/* AI Input Row */}
-          <div className="grid gap-3 md:grid-cols-[2fr_1fr_auto_auto]">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium" htmlFor="ai-topic">Topic</label>
-              <Input id="ai-topic" placeholder="e.g. JavaScript closures" value={topic} onChange={(e) => setTopic(e.target.value)} className="border-violet-200 bg-white/80 dark:border-violet-800 dark:bg-white/5" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium" htmlFor="ai-count">Count</label>
-              <Input id="ai-count" type="number" min={1} max={10} value={count} onChange={(e) => { const n = Number(e.target.value || 1); setCount(Math.min(10, Math.max(1, Number.isFinite(n) ? n : 1))); }} className="border-violet-200 bg-white/80 dark:border-violet-800 dark:bg-white/5" />
-            </div>
-            <div className="flex items-end">
-              <Button type="button" disabled={aiLoading || aiTesting || !topic.trim()} onClick={handleGenerate} className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110">
-                {aiLoading ? "Generating..." : "✨ Generate"}
+            {/* Error */}
+            {questionError && (
+              <p className="text-sm text-destructive">{questionError}</p>
+            )}
+
+            {/* Form footer */}
+            <div className="flex items-center gap-2 pt-2">
+              <Button type="submit" variant="default">
+                {editingQuestionId ? "Update Question" : "Save Question"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={resetQuestionForm}
+              >
+                Cancel
               </Button>
             </div>
-            <div className="flex items-end">
-              <Button type="button" variant="outline" disabled={aiLoading || aiTesting} onClick={handleTestAi} className="border-violet-300 dark:border-violet-700">
-                {aiTesting ? "Testing..." : "Test AI"}
-              </Button>
-            </div>
-          </div>
-
-          {/* Status messages */}
-          {aiTestStatus !== "idle" && aiTestMessage ? (
-            <p className={`mt-3 text-sm ${aiTestStatus === "error" ? "text-destructive" : "text-emerald-600 dark:text-emerald-400"}`}>{aiTestMessage}</p>
-          ) : null}
-          {aiError ? <p className="mt-3 text-sm text-destructive">{aiError}</p> : null}
-
-          {/* AI Results */}
-          {aiQuestions.length > 0 ? (
-            <div className="mt-5 space-y-3">
-              {/* Bulk add banner */}
-              <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/30">
-                <div className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-emerald-600 dark:text-emerald-400"><polyline points="20 6 9 17 4 12" /></svg>
-                  <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">{aiQuestions.length} question{aiQuestions.length > 1 ? "s" : ""} generated</span>
-                </div>
-                <Button size="sm" disabled={bulkAdding} onClick={handleAddAllAiQuestions} className="bg-emerald-600 text-white hover:bg-emerald-700">
-                  {bulkAdding ? "Adding..." : `⚡ Add All ${aiQuestions.length} to Quiz`}
-                </Button>
-              </div>
-
-              {aiQuestions.map((question, index) => (
-                <div key={`${question.questionText}-${index}`} className="rounded-xl border border-violet-200 bg-white/70 p-4 dark:border-violet-800 dark:bg-white/5">
-                  <p className="text-sm font-medium">{question.questionText}</p>
-                  <ol className="mt-2 list-decimal space-y-1 pl-4 text-sm text-muted-foreground">
-                    {question.options.map((opt, oi) => (
-                      <li key={`${opt}-${oi}`} className={oi === question.correctIndex ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>{opt}</li>
-                    ))}
-                  </ol>
-                  {question.explanation && <p className="mt-2 text-xs text-muted-foreground italic">💡 {question.explanation}</p>}
-                  <div className="mt-3 flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">Correct: option {question.correctIndex + 1}</span>
-                    <Button size="sm" variant="outline" disabled={actionId === question.questionText} onClick={() => handleAddAiQuestion(question)} className="border-violet-300 dark:border-violet-700">Add to quiz</Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : aiLoading ? (
-            <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-violet-300 border-t-violet-600" />
-              Generating questions with AI...
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-muted-foreground">Enter a topic and click Generate to create AI-powered questions.</p>
-          )}
-        </div>
-      </div>
-
-      {/* ─── QUIZ DETAILS ─── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quiz details</CardTitle>
-          <CardDescription>Update the quiz metadata.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="quiz-title">Title</label>
-            <Input id="quiz-title" value={title} onChange={(e) => setTitle(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="quiz-description">Description</label>
-            <Input id="quiz-description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="quiz-time">Time limit (minutes)</label>
-            <Input id="quiz-time" type="number" min={0} value={timeLimit} onChange={(e) => setTimeLimit(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="quiz-question-limit">Question limit</label>
-            <Input id="quiz-question-limit" type="number" min={1} max={30} value={questionLimit} onChange={(e) => setQuestionLimit(e.target.value)} />
-            <p className="text-xs text-muted-foreground">Number of questions to show per attempt (1-30). Questions will be randomized.</p>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium" htmlFor="quiz-tags">Tags</label>
-            <Input id="quiz-tags" value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleQuizSave} disabled={savingQuiz}>{savingQuiz ? "Saving..." : "Save quiz"}</Button>
-        </CardFooter>
-      </Card>
-
-      {/* ─── QUESTIONS ─── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Questions</CardTitle>
-          <CardDescription>Manage quiz questions.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {questions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No questions yet.</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Question</TableHead>
-                  <TableHead>Order</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell className="max-w-105 truncate">{question.questionText}</TableCell>
-                    <TableCell>{question.order ?? 0}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleEditQuestion(question)}>Edit</Button>
-                        <Button size="sm" variant="destructive" disabled={actionId === question.id} onClick={() => handleDeleteQuestion(question)}>Delete</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-
-          <div className="rounded-lg border border-border p-4">
-            <h3 className="text-sm font-medium">{questionTitle}</h3>
-            <form className="mt-4 space-y-4" onSubmit={handleQuestionSubmit}>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="question-text">Question</label>
-                <Input id="question-text" value={questionForm.questionText} onChange={(e) => setQuestionForm((p) => ({ ...p, questionText: e.target.value }))} required />
-              </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                {questionForm.options.map((option, index) => (
-                  <div key={`option-${index}`} className="space-y-1">
-                    <label className="text-xs text-muted-foreground">Option {index + 1}</label>
-                    <Input value={option} onChange={(e) => setQuestionForm((p) => { const opts = [...p.options]; opts[index] = e.target.value; return { ...p, options: opts }; })} required />
-                  </div>
-                ))}
-              </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="correct-index">Correct option</label>
-                  <select id="correct-index" className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={questionForm.correctIndex} onChange={(e) => setQuestionForm((p) => ({ ...p, correctIndex: Number(e.target.value) }))}>
-                    {[0, 1, 2, 3].map((v) => (<option key={v} value={v}>Option {v + 1}</option>))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="order">Order</label>
-                  <Input id="order" type="number" value={questionForm.order} onChange={(e) => setQuestionForm((p) => ({ ...p, order: Number(e.target.value) }))} />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium" htmlFor="explanation">Explanation</label>
-                  <Input id="explanation" value={questionForm.explanation} onChange={(e) => setQuestionForm((p) => ({ ...p, explanation: e.target.value }))} />
-                </div>
-              </div>
-              {questionError ? <p className="text-sm text-destructive">{questionError}</p> : null}
-              <div className="flex flex-wrap gap-2">
-                <Button type="submit">{editingQuestionId ? "Update question" : "Add question"}</Button>
-                {editingQuestionId ? (<Button type="button" variant="outline" onClick={resetQuestionForm}>Cancel edit</Button>) : null}
-              </div>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

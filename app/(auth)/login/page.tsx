@@ -5,14 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-   Card,
-   CardContent,
-   CardDescription,
-   CardFooter,
-   CardHeader,
-   CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAdminAuth } from "@/context/admin-auth-context";
 import { useStudentAuth } from "@/context/student-auth-context";
@@ -145,197 +137,251 @@ export default function LoginPage() {
    };
 
    return (
-      <div className="flex min-h-screen flex-col bg-gradient-to-br from-violet-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950/30">
-         {/* Top Navigation */}
-         <nav className="flex items-center justify-between px-6 py-4">
-            <Link href="/" className="flex items-center gap-2.5 group" id="login-nav-logo">
-               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 transition-transform duration-200 group-hover:scale-105">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                  </svg>
-               </div>
-               <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                  QuizMaster
-               </span>
-            </Link>
-            <div className="flex items-center gap-3">
-               <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" id="login-nav-home">
-                  Home
-               </Link>
-               <Link href="/signup" className="rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:shadow-lg hover:brightness-110" id="login-nav-signup">
-                  Sign up free
-               </Link>
-            </div>
-         </nav>
+      <div className="min-h-screen w-full relative" style={{ background: 'var(--background)' }}>
+         {/* Diagonal grid overlay */}
+         <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+               backgroundImage: `
+                  repeating-linear-gradient(
+                     45deg,
+                     oklch(0.54 0.175 292 / 0.07) 0,
+                     oklch(0.54 0.175 292 / 0.07) 1px,
+                     transparent 1px,
+                     transparent 20px
+                  ),
+                  repeating-linear-gradient(
+                     -45deg,
+                     oklch(0.54 0.175 292 / 0.07) 0,
+                     oklch(0.54 0.175 292 / 0.07) 1px,
+                     transparent 1px,
+                     transparent 20px
+                  )
+               `,
+               backgroundSize: '40px 40px',
+            }}
+         />
 
-         {/* Main */}
-         <div className="flex flex-1 flex-col items-center justify-center px-4 pb-16">
-            {/* Heading */}
+         {/* Radial fade */}
+         <div
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+               background: 'radial-gradient(ellipse 70% 60% at 50% 50%, var(--background) 40%, transparent 100%)',
+            }}
+         />
+
+         {/* Content */}
+         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+            {/* Logo */}
             <div className="mb-8 text-center">
-               <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                  Welcome back
-               </h1>
-               <p className="mt-2 text-muted-foreground">
-                  Sign in to continue to QuizMaster
-               </p>
+               <Link href="/">
+                  <span
+                     className="font-display italic font-semibold text-purple-600"
+                     style={{ fontSize: '1.75rem', letterSpacing: '-0.01em' }}
+                  >
+                     QuizMaster
+                  </span>
+               </Link>
             </div>
 
-            <Card className="w-full max-w-md shadow-xl shadow-violet-100/50 dark:shadow-violet-900/10">
+            {/* Auth Card */}
+            <div
+               className="w-full max-w-[420px] surface-raised"
+               style={{
+                  padding: '36px 40px',
+                  borderRadius: 'var(--radius-card)',
+                  boxShadow: 'var(--shadow-raised)',
+               }}
+            >
+               {/* Card Header */}
+               <div className="mb-7">
+                  <h1 className="font-sans font-semibold text-foreground" style={{ fontSize: '1.375rem', marginBottom: '4px' }}>
+                     Welcome back
+                  </h1>
+                  <p className="font-sans text-foreground-muted" style={{ fontSize: '0.875rem' }}>
+                     Sign in to your account
+                  </p>
+               </div>
+
                {/* Tab Switcher */}
-               <div className="flex border-b border-border">
+               <div className="flex gap-6 mb-6" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '4px' }}>
                   <button
                      onClick={() => setActiveTab("student")}
-                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${activeTab === "student"
-                        ? "border-b-2 border-violet-600 text-violet-600"
-                        : "text-muted-foreground hover:text-foreground"
+                     className={`pb-1 text-sm transition-colors ${activeTab === "student"
+                           ? "text-foreground font-medium border-b-2 border-purple-400"
+                           : "text-foreground-muted font-normal"
                         }`}
-                     id="login-tab-student"
+                     style={{ marginBottom: '-5px' }}
                   >
-                     <span className="flex items-center justify-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                        Student
-                     </span>
+                     Student
                   </button>
                   <button
                      onClick={() => setActiveTab("admin")}
-                     className={`flex-1 py-3.5 text-center text-sm font-semibold transition-all duration-200 ${activeTab === "admin"
-                        ? "border-b-2 border-violet-600 text-violet-600"
-                        : "text-muted-foreground hover:text-foreground"
+                     className={`pb-1 text-sm transition-colors ${activeTab === "admin"
+                           ? "text-foreground font-medium border-b-2 border-purple-400"
+                           : "text-foreground-muted font-normal"
                         }`}
-                     id="login-tab-admin"
+                     style={{ marginBottom: '-5px' }}
                   >
-                     <span className="flex items-center justify-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
-                        Admin
-                     </span>
+                     Admin
                   </button>
                </div>
 
-               {/* Student Login */}
+               {/* Student Login Form */}
                {activeTab === "student" && (
-                  <>
-                     <CardHeader>
-                        <CardTitle>Student Login</CardTitle>
-                        <CardDescription>Sign in with your student email and password.</CardDescription>
-                     </CardHeader>
-                     <CardContent>
-                        <form className="space-y-4" onSubmit={handleStudentSubmit}>
-                           <div className="space-y-2">
-                              <label className="text-sm font-medium" htmlFor="student-email">Email</label>
-                              <Input
-                                 id="student-email"
-                                 type="email"
-                                 autoComplete="email"
-                                 placeholder="you@example.com"
-                                 value={studentEmail}
-                                 onChange={(e) => handleStudentEmailChange(e.target.value)}
-                                 className={studentValidationErrors.email ? "border-destructive" : ""}
-                              />
-                              {studentValidationErrors.email && (
-                                 <p className="text-xs text-destructive">{studentValidationErrors.email}</p>
-                              )}
-                           </div>
-                           <div className="space-y-2">
-                              <label className="text-sm font-medium" htmlFor="student-password">Password</label>
-                              <Input
-                                 id="student-password"
-                                 type="password"
-                                 autoComplete="current-password"
-                                 placeholder="••••••••"
-                                 value={studentPassword}
-                                 onChange={(e) => handleStudentPasswordChange(e.target.value)}
-                                 className={studentValidationErrors.password ? "border-destructive" : ""}
-                              />
-                              {studentValidationErrors.password && (
-                                 <p className="text-xs text-destructive">{studentValidationErrors.password}</p>
-                              )}
-                           </div>
-                           {studentError ? (<p className="text-sm text-destructive font-medium">{studentError}</p>) : null}
-                           <Button type="submit" disabled={studentLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110">
-                              {studentLoading ? "Signing in..." : "Sign in as Student"}
-                           </Button>
-                        </form>
-                     </CardContent>
-                     <CardFooter className="flex flex-col items-center gap-3 text-sm">
-                        <div className="flex items-center gap-1">
-                           <span className="text-muted-foreground">New here?</span>
-                           <Link className="font-semibold text-violet-600 hover:text-violet-700 hover:underline" href="/signup">Create a student account</Link>
-                        </div>
-                        <div className="flex items-center gap-1">
-                           <span className="text-muted-foreground">Are you an admin?</span>
-                           <button onClick={() => setActiveTab("admin")} className="font-semibold text-violet-600 hover:text-violet-700 hover:underline">Switch to Admin login</button>
-                        </div>
-                     </CardFooter>
-                  </>
+                  <form className="space-y-5" onSubmit={handleStudentSubmit}>
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="student-email"
+                        >
+                           Email address
+                        </label>
+                        <Input
+                           id="student-email"
+                           type="email"
+                           autoComplete="email"
+                           placeholder="you@example.com"
+                           value={studentEmail}
+                           onChange={(e) => handleStudentEmailChange(e.target.value)}
+                           className={studentValidationErrors.email ? "border-destructive" : ""}
+                        />
+                        {studentValidationErrors.email && (
+                           <p className="text-xs text-destructive mt-1">{studentValidationErrors.email}</p>
+                        )}
+                     </div>
+
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="student-password"
+                        >
+                           Password
+                        </label>
+                        <Input
+                           id="student-password"
+                           type="password"
+                           autoComplete="current-password"
+                           placeholder="••••••••"
+                           value={studentPassword}
+                           onChange={(e) => handleStudentPasswordChange(e.target.value)}
+                           className={studentValidationErrors.password ? "border-destructive" : ""}
+                        />
+                        {studentValidationErrors.password && (
+                           <p className="text-xs text-destructive mt-1">{studentValidationErrors.password}</p>
+                        )}
+                     </div>
+
+                     {studentError && (
+                        <p className="text-sm text-destructive font-medium">{studentError}</p>
+                     )}
+
+                     <Button
+                        type="submit"
+                        disabled={studentLoading}
+                        className="w-full mt-2"
+                        variant="default"
+                     >
+                        {studentLoading ? "Signing in..." : "Sign in"}
+                     </Button>
+
+                     <div className="text-center mt-5">
+                        <p className="text-sm text-foreground-muted">
+                           Don't have an account?{" "}
+                           <Link href="/signup" className="text-purple-500 font-medium hover:text-purple-600">
+                              Sign up
+                           </Link>
+                        </p>
+                     </div>
+                  </form>
                )}
 
-               {/* Admin Login */}
+               {/* Admin Login Form */}
                {activeTab === "admin" && (
-                  <>
-                     <CardHeader>
-                        <CardTitle>Admin Login</CardTitle>
-                        <CardDescription>Sign in with your admin credentials.</CardDescription>
-                     </CardHeader>
-                     <CardContent>
-                        <form className="space-y-4" onSubmit={handleAdminSubmit}>
-                           <div className="space-y-2">
-                              <label className="text-sm font-medium" htmlFor="admin-email">Admin Email</label>
-                              <Input
-                                 id="admin-email"
-                                 type="email"
-                                 autoComplete="email"
-                                 placeholder="admin@example.com"
-                                 value={adminEmail}
-                                 onChange={(e) => handleAdminEmailChange(e.target.value)}
-                                 className={adminValidationErrors.email ? "border-destructive" : ""}
-                              />
-                              {adminValidationErrors.email && (
-                                 <p className="text-xs text-destructive">{adminValidationErrors.email}</p>
-                              )}
-                           </div>
-                           <div className="space-y-2">
-                              <label className="text-sm font-medium" htmlFor="admin-password">Password</label>
-                              <Input
-                                 id="admin-password"
-                                 type="password"
-                                 autoComplete="current-password"
-                                 placeholder="••••••••"
-                                 value={adminPassword}
-                                 onChange={(e) => handleAdminPasswordChange(e.target.value)}
-                                 className={adminValidationErrors.password ? "border-destructive" : ""}
-                              />
-                              {adminValidationErrors.password && (
-                                 <p className="text-xs text-destructive">{adminValidationErrors.password}</p>
-                              )}
-                           </div>
-                           {adminError ? <p className="text-sm text-destructive font-medium">{adminError}</p> : null}
-                           <Button type="submit" disabled={adminLoading} className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:brightness-110">
-                              {adminLoading ? "Signing in..." : "Sign in as Admin"}
-                           </Button>
-                        </form>
-                     </CardContent>
-                     <CardFooter className="flex flex-col items-center gap-3 text-sm">
-                        <p className="text-xs text-muted-foreground">Admin credentials are seeded via environment variables.</p>
-                        <div className="flex items-center gap-1">
-                           <span className="text-muted-foreground">Not an admin?</span>
-                           <button onClick={() => setActiveTab("student")} className="font-semibold text-violet-600 hover:text-violet-700 hover:underline">Switch to Student login</button>
-                        </div>
-                        <Link href="/admin" className="text-xs text-muted-foreground hover:text-foreground hover:underline">
-                           Go directly to Admin Panel →
-                        </Link>
-                     </CardFooter>
-                  </>
-               )}
-            </Card>
+                  <form className="space-y-5" onSubmit={handleAdminSubmit}>
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="admin-email"
+                        >
+                           Email address
+                        </label>
+                        <Input
+                           id="admin-email"
+                           type="email"
+                           autoComplete="email"
+                           placeholder="admin@example.com"
+                           value={adminEmail}
+                           onChange={(e) => handleAdminEmailChange(e.target.value)}
+                           className={adminValidationErrors.email ? "border-destructive" : ""}
+                        />
+                        {adminValidationErrors.email && (
+                           <p className="text-xs text-destructive mt-1">{adminValidationErrors.email}</p>
+                        )}
+                     </div>
 
-            {/* Bottom navigation links */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-               <Link href="/" className="hover:text-foreground transition-colors">← Back to Home</Link>
-               <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-               <Link href="/signup" className="hover:text-foreground transition-colors">Create Account</Link>
-               <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-               <Link href="/admin" className="hover:text-foreground transition-colors">Admin Panel</Link>
+                     <div className="space-y-2">
+                        <label
+                           className="block text-xs uppercase tracking-wider text-foreground-muted"
+                           htmlFor="admin-password"
+                        >
+                           Password
+                        </label>
+                        <Input
+                           id="admin-password"
+                           type="password"
+                           autoComplete="current-password"
+                           placeholder="••••••••"
+                           value={adminPassword}
+                           onChange={(e) => handleAdminPasswordChange(e.target.value)}
+                           className={adminValidationErrors.password ? "border-destructive" : ""}
+                        />
+                        {adminValidationErrors.password && (
+                           <p className="text-xs text-destructive mt-1">{adminValidationErrors.password}</p>
+                        )}
+                     </div>
+
+                     {adminError && (
+                        <p className="text-sm text-destructive font-medium">{adminError}</p>
+                     )}
+
+                     <Button
+                        type="submit"
+                        disabled={adminLoading}
+                        className="w-full mt-2"
+                        variant="default"
+                     >
+                        {adminLoading ? "Signing in..." : "Sign in as Admin"}
+                     </Button>
+
+                     <div className="text-center mt-5">
+                        <p className="text-xs text-foreground-faint mb-3">
+                           Admin credentials are seeded via environment variables.
+                        </p>
+                        <p className="text-sm text-foreground-muted">
+                           Not an admin?{" "}
+                           <button
+                              type="button"
+                              onClick={() => setActiveTab("student")}
+                              className="text-purple-500 font-medium hover:text-purple-600"
+                           >
+                              Switch to Student
+                           </button>
+                        </p>
+                     </div>
+                  </form>
+               )}
+            </div>
+
+            {/* Bottom Links */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-foreground-muted">
+               <Link href="/" className="hover:text-foreground transition-colors">
+                  ← Back to Home
+               </Link>
+               <span className="h-1 w-1 rounded-full bg-foreground-muted opacity-40" />
+               <Link href="/signup" className="hover:text-foreground transition-colors">
+                  Create Account
+               </Link>
             </div>
          </div>
       </div>
